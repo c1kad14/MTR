@@ -1,19 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MTR.Domain;
 
 public record User : IBaseEntity
 {
-    public int Id { get; set; }
-    public Guid Guid { get; set; }
-    [MaxLength(16)]
-    [Required]
-    public string Name { get; set; }
-    [MaxLength(32)]
-    [Required]
-    public string Email { get; set; }
-    public Image Image { get; set; }
-    [MaxLength(32)]
-    [Required]
-    public string Password { get; set; }
+    public DateTime Created { get; set; } = DateTime.UtcNow;
+    public List<UserDetail> Details { get; set; }
 }

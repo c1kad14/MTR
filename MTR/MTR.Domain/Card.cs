@@ -1,7 +1,11 @@
-﻿namespace MTR.Domain;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record Card : IBaseEntity
+namespace MTR.Domain;
+
+public record Card
 {
+    [Key]
+    public int Id { get; set; }
     public Rank Rank { get; set; }
     public Suit Suit { get; set; }
 }

@@ -3,7 +3,7 @@
 public record Cheat : IBaseEntity
 {
     public Action Action { get; set; }
-    public TurnCard CheatCard { get; set; }
-    public DateTime ModifiedDate { get; set; }
+    public TurnCard Card { get; set; }
+    public DateTime Modified { get; set; } = DateTime.UtcNow;
     public bool IsAccounted { get; set; }
 }

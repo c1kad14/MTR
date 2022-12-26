@@ -1,9 +1,8 @@
 ﻿namespace MTR.Domain;
 
-public record TurnCard : IBaseEntity
+public record MuckedCard
 {
-    public Action Action { get; set; }
+    public int Id { get; set; }
     public RoundCard Card { get; set; }
-    public TurnCard? OppositeCard { get; set; }
     public DateTime Modified { get; set; } = DateTime.UtcNow;
 }
