@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 using MTR.API.Models;
+using MTR.DTO;
 
 namespace MTR.API.Queries;
 

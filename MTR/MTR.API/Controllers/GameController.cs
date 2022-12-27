@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using MTR.API.Commands;
-using MTR.API.Models;
 using MTR.API.Queries;
 
 namespace MTR.API.Controllers

@@ -2,9 +2,8 @@
 
 namespace MTR.Domain;
 
-public record IBaseEntity
+public record IEntity
 {
     [Key]
     public int Id { get; set; }
-    public Guid Guid { get; set; }
 }

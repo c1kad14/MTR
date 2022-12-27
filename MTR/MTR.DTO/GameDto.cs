@@ -1,6 +1,4 @@
-﻿using MTR.Domain;
-
-namespace MTR.API.Models;
+﻿namespace MTR.DTO;
 
 public record GameDto : IDto
 {

@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting.Internal;
 
 using MTR.API;
+using MTR.Core;
+using MTR.Core.Abstractions;
 using MTR.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +22,8 @@ var path = System.IO.Directory.GetCurrentDirectory();
 builder.Services.AddDbContext<MTRContext>(options => { options.UseSqlite($"Data Source={path}/mtr.db"); });
 builder.Services.AddAutoMapper(typeof(MTRProfile));
 builder.Services.AddMediatR(typeof(Program).Assembly);
+builder.Services.AddTransient<ICardsManager, CardsManager>();
+builder.Services.AddTransient<IRoundManager, RoundManager>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

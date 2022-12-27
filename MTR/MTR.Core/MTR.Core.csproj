@@ -10,4 +10,10 @@
     <PackageReference Include="MediatR" Version="11.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MTR.DAL\MTR.DAL.csproj" />
+    <ProjectReference Include="..\MTR.Domain\MTR.Domain.csproj" />
+    <ProjectReference Include="..\MTR.DTO\MTR.DTO.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MTR.API.Models;
+﻿namespace MTR.DTO;
 
 public record UserDto : IDto
 {

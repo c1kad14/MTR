@@ -1,7 +1,6 @@
 ﻿namespace MTR.Domain;
 
-public record Image
+public record Image : IEntity
 {
-    public int Id { get; set; }
     public string Path { get; set; }
 }

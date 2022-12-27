@@ -1,4 +1,4 @@
-﻿namespace MTR.API.Models;
+﻿namespace MTR.DTO;
 
 public record PlayerDto : IDto
 {

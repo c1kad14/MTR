@@ -1,8 +1,9 @@
-﻿namespace MTR.Domain;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record PlayerRemoved
+namespace MTR.Domain;
+
+public record PlayerRemoved : IEntity
 {
-    public int Id { get; set; }
     public Player Player { get; set; }
     public int PlayerId { get; set; }
     public DateTime Modified { get; set; } = DateTime.UtcNow;

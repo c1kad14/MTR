@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 
 using MTR.API.Commands;
-using MTR.API.Models;
 using MTR.Domain;
+using MTR.DTO;
 
 namespace MTR.API;
 
@@ -25,6 +25,7 @@ public class MTRProfile : Profile
             {
                 new UserDetail
                 {
+                    Guid = s.Guid,
                     Email = s.Email,
                     Name = s.Username,
                     Password = s.Password,

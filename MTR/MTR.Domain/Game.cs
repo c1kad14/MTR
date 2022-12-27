@@ -1,7 +1,8 @@
 ﻿namespace MTR.Domain;
 
-public record Game : IBaseEntity
+public record Game : IEntity
 {
+    public Guid Guid { get; set; }
     public DateTime Created { get; set; } = DateTime.UtcNow;
     public DateTime? Started { get; set; }
     public DateTime? Ended { get; set; }

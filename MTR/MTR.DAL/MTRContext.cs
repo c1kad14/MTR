@@ -22,6 +22,8 @@ public class MTRContext : DbContext
     public DbSet<Image> Images { get; set; }
     public DbSet<MuckedCard> MuckedCards { get; set; }
     public DbSet<Player> Players { get; set; }
+    public DbSet<PlayerCard> PlayerCards { get; set; }
+    public DbSet<PlayerRemoved> PlayerRemoved { get; set; }
     public DbSet<Round> Rounds { get; set; }
     public DbSet<RoundCard> RoundCards { get; set; }
     public DbSet<RoundResult> RoundResults { get; set; }
@@ -29,18 +31,15 @@ public class MTRContext : DbContext
     public DbSet<TurnCard> TurnCards { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<UserDetail> UserDetails { get; set; }
-    //public string DbPath { get; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Action>().HasAlternateKey(a => new { a.Guid });
-        modelBuilder.Entity<Cheat>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Game>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Round>().HasAlternateKey(a => new { a.Guid });
-        modelBuilder.Entity<RoundCard>().HasAlternateKey(a => new { a.Guid });
-        modelBuilder.Entity<RoundResult>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<TurnCard>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<User>().HasAlternateKey(a => new { a.Guid });
+        modelBuilder.Entity<UserDetail>().HasAlternateKey(a => new { a.Guid });
 
         SeedCards(modelBuilder);
     }

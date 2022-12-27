@@ -1,4 +1,6 @@
-﻿namespace MTR.API.Models;
+﻿using MTR.DTO;
+
+namespace MTR.API.Models;
 
 public record Response<TModel> where TModel : class, IDto, new()
 {

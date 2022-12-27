@@ -1,8 +1,10 @@
-﻿namespace MTR.Domain;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record MuckedCard
+namespace MTR.Domain;
+
+public record MuckedCard : IEntity
 {
-    public int Id { get; set; }
     public RoundCard Card { get; set; }
+    public int CardId { get; set; }
     public DateTime Modified { get; set; } = DateTime.UtcNow;
 }

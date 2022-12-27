@@ -2,10 +2,8 @@
 
 namespace MTR.Domain;
 
-public record Card
+public record Card : IEntity
 {
-    [Key]
-    public int Id { get; set; }
     public Rank Rank { get; set; }
     public Suit Suit { get; set; }
 }

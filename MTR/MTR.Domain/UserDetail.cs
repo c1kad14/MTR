@@ -2,10 +2,9 @@
 
 namespace MTR.Domain;
 
-public record UserDetail
+public record UserDetail : IEntity
 {
-    public int Id { get; set; }
-
+    public Guid Guid { get; set; }
     public User User { get; set; }
 
     public int UserId { get; set; }

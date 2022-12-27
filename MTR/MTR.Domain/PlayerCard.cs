@@ -1,9 +1,12 @@
-﻿namespace MTR.Domain;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record PlayerCard
+namespace MTR.Domain;
+
+public record PlayerCard : IEntity
 {
-    public int Id { get; set; }
     public RoundCard Card { get; set; }
+    public int CardId { get; set; }
     public Player Player { get; set; }
-    public DateTime ModifiedDate { get; set; }
+    public int PlayerId { get; set; }
+    public DateTime Modified { get; set; } = DateTime.UtcNow;
 }

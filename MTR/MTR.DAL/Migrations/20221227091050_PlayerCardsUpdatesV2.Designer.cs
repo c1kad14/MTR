@@ -3,6 +3,7 @@ using System;
 using MTR.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MTR.DAL.Migrations
 {
     [DbContext(typeof(MTRContext))]
-    partial class MTRContextModelSnapshot : ModelSnapshot
+    [Migration("20221227091050_PlayerCardsUpdatesV2")]
+    partial class PlayerCardsUpdatesV2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.1");
@@ -70,109 +73,109 @@ namespace MTR.DAL.Migrations
                         {
                             Id = 1,
                             Rank = "SIX",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 2,
                             Rank = "SEVEN",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 3,
                             Rank = "EIGHT",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 4,
                             Rank = "NINE",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 5,
                             Rank = "TEN",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 6,
                             Rank = "JACK",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 7,
                             Rank = "QUEEN",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 8,
                             Rank = "KING",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 9,
                             Rank = "ACE",
-                            Suit = "SPADES"
+                            Suit = "HEARTS"
                         },
                         new
                         {
                             Id = 10,
                             Rank = "SIX",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
                             Id = 11,
                             Rank = "SEVEN",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
                             Id = 12,
                             Rank = "EIGHT",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
                             Id = 13,
                             Rank = "NINE",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
                             Id = 14,
                             Rank = "TEN",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
                             Id = 15,
                             Rank = "JACK",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
                             Id = 16,
                             Rank = "QUEEN",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
                             Id = 17,
                             Rank = "KING",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
                             Id = 18,
                             Rank = "ACE",
-                            Suit = "HEARTS"
+                            Suit = "SPADED"
                         },
                         new
                         {
@@ -296,6 +299,9 @@ namespace MTR.DAL.Migrations
                     b.Property<int>("CardId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsAccounted")
                         .HasColumnType("INTEGER");
 
@@ -303,6 +309,8 @@ namespace MTR.DAL.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Guid");
 
                     b.HasIndex("ActionId");
 
@@ -483,6 +491,9 @@ namespace MTR.DAL.Migrations
                     b.Property<int>("CardId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("TEXT");
 
@@ -490,6 +501,8 @@ namespace MTR.DAL.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Guid");
 
                     b.HasIndex("CardId");
 
@@ -504,6 +517,9 @@ namespace MTR.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("TEXT");
 
@@ -517,6 +533,8 @@ namespace MTR.DAL.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Guid");
 
                     b.HasIndex("PlayerId");
 
@@ -614,9 +632,6 @@ namespace MTR.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("TEXT");
-
                     b.Property<int?>("ImageId")
                         .HasColumnType("INTEGER");
 
@@ -635,8 +650,6 @@ namespace MTR.DAL.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("Guid");
 
                     b.HasIndex("ImageId");
 
@@ -686,7 +699,7 @@ namespace MTR.DAL.Migrations
             modelBuilder.Entity("MTR.Domain.MuckedCard", b =>
                 {
                     b.HasOne("MTR.Domain.RoundCard", "Card")
-                        .WithMany("MuckedCards")
+                        .WithMany()
                         .HasForeignKey("CardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -716,7 +729,7 @@ namespace MTR.DAL.Migrations
             modelBuilder.Entity("MTR.Domain.PlayerCard", b =>
                 {
                     b.HasOne("MTR.Domain.RoundCard", "Card")
-                        .WithMany("PlayerCards")
+                        .WithMany()
                         .HasForeignKey("CardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -887,13 +900,6 @@ namespace MTR.DAL.Migrations
                     b.Navigation("Cards");
 
                     b.Navigation("RoundResults");
-                });
-
-            modelBuilder.Entity("MTR.Domain.RoundCard", b =>
-                {
-                    b.Navigation("MuckedCards");
-
-                    b.Navigation("PlayerCards");
                 });
 
             modelBuilder.Entity("MTR.Domain.User", b =>

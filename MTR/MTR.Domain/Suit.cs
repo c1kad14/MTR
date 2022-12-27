@@ -2,8 +2,8 @@
 
 public enum Suit
 {
-    HEARTS = 1,
-    SPADED = 2,
+    SPADES = 1,
+    HEARTS = 2,
     DIAMONDS = 3,
     CLUBS = 4
 }
