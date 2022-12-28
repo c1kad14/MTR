@@ -51,7 +51,8 @@ public class BeginRoundCommandHandler : IRequestHandler<BeginRoundCommand, Respo
             return new Response<RoundDto> { Message = "Round count exceeds maximum." };
         }
 
-        var round = await _roundManager.BeginRoundAsync(game, request.RoundGuid);
+        var cards = await _context.Cards.ToListAsync();
+        var round = _roundManager.RoundInit(game, cards, request.RoundGuid);
 
         return null;
     }

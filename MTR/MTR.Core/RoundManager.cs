@@ -15,12 +15,23 @@ public class RoundManager : IRoundManager
         _cardsManager = cardsManager;
     }
 
-    public async Task<Round> BeginRoundAsync(Game game, Guid roundGuid)
+    public Round RoundInit(Game game, List<Card> cards, Guid roundGuid)
     {
+        var players = game.Players.Where(p => !p.Removed.Any()).ToList();
         var suit = _cardsManager.GetNextRoundSuit(game.Rounds);
-        var round = new Round { Guid = roundGuid, Game = game, Suit = suit, Sequence = game.Rounds.Count() + 1 };
+        var round = new Round { Guid = roundGuid, GameId = game.Id, Suit = suit, Sequence = game.Rounds.Count() + 1 };
+        var lastRound = game.Rounds.OrderByDescending(r => r.Sequence).FirstOrDefault();
+        var defaultStartPosition = 1;
 
+        if (lastRound != null)
+        {
+            var lastRoundLooser = lastRound.RoundResults.OrderBy(r => r.Score).First();
+            defaultStartPosition = lastRoundLooser.Player.Position;
+        }
 
-        return await Task.FromResult(round);
+        var roundCards = _cardsManager.GenerateRoundCards(round, cards, players);
+        round.StartPosition = round.StartPosition == -1 ? defaultStartPosition : round.StartPosition;
+
+        return round;
     }
 }

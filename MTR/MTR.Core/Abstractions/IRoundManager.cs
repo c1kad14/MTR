@@ -4,6 +4,5 @@ namespace MTR.Core.Abstractions;
 
 public interface IRoundManager
 {
-    Task<Round> BeginRoundAsync(Game game, Guid roundGuid);
-
+    Round RoundInit(Game game, List<Card> cards, Guid roundGuid);
 }

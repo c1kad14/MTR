@@ -8,7 +8,7 @@ public record RoundCard : IEntity
     public int CardId { get; set; }
     public Round Round { get; set; }
     public int RoundId { get; set; }
-    public DateTime Modified { get; set; }
-    public List<PlayerCard> PlayerCards { get; set; }
-    public List<MuckedCard> MuckedCards { get; set; }
+    public DateTime Modified { get; set; } = DateTime.UtcNow;
+    public List<PlayerCard> PlayerCards { get; set; } = new();
+    public List<MuckedCard> MuckedCards { get; set; } = new();
 }
