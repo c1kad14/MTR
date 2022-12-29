@@ -35,7 +35,7 @@ public class CardsManager : ICardsManager
             }
         }
 
-        round.StartPosition = minRankSuitCard?.PlayerCards.Single().Player.Position ?? -1;
+        round.StartPosition = minRankSuitCard?.PlayerCards.Single().Player.Position.Single().Position ?? 0;
 
         return roundCards;
     }

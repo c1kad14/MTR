@@ -50,10 +50,20 @@ public class BeginRoundCommandHandler : IRequestHandler<BeginRoundCommand, Respo
         {
             return new Response<RoundDto> { Message = "Round count exceeds maximum." };
         }
+        else if (game.Players.Where(p => !p.Removed.Any()).Count() < 3)
+        {
+            return new Response<RoundDto> { Message = "At least 3 players required." };
+        }
 
         var cards = await _context.Cards.ToListAsync();
-        var round = _roundManager.RoundInit(game, cards, request.RoundGuid);
+        var round = _roundManager.RoundInit(game, cards);
+        round.Guid = request.RoundGuid;
 
-        return null;
+        _context.Rounds.Add(round);
+        await _context.SaveChangesAsync();
+
+        var roundDto = _mapper.Map<RoundDto>(round);
+
+        return new Response<RoundDto> { Model = roundDto };
     }
 }

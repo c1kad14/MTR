@@ -23,6 +23,7 @@ public class MTRContext : DbContext
     public DbSet<MuckedCard> MuckedCards { get; set; }
     public DbSet<Player> Players { get; set; }
     public DbSet<PlayerCard> PlayerCards { get; set; }
+    public DbSet<PlayerPosition> PlayerPositions { get; set; }
     public DbSet<PlayerRemoved> PlayerRemoved { get; set; }
     public DbSet<Round> Rounds { get; set; }
     public DbSet<RoundCard> RoundCards { get; set; }
@@ -36,6 +37,7 @@ public class MTRContext : DbContext
     {
         modelBuilder.Entity<Action>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Game>().HasAlternateKey(a => new { a.Guid });
+        modelBuilder.Entity<PlayerPosition>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Round>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<TurnCard>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<User>().HasAlternateKey(a => new { a.Guid });

@@ -138,13 +138,12 @@ namespace MTR.Tests
         private List<Player> WithPlayers() =>
             new List<Player>
             {
-                new Player { Id = 1, Position = 1 },
-                new Player { Id = 2, Position = 2 },
-                new Player { Id = 3, Position = 3 },
-                new Player { Id = 4, Position = 4 },
-                new Player { Id = 5, Position = 5 },
-                new Player { Id = 6, Position = 6 },
+                new Player { Id = 1, Position = new(){ new() { Position = 1 } } },
+                new Player { Id = 2, Position = new(){ new() { Position = 2 } } },
+                new Player { Id = 3, Position = new(){ new() { Position = 3 } } },
+                new Player { Id = 4, Position = new(){ new() { Position = 4 } } },
+                new Player { Id = 5, Position = new(){ new() { Position = 5 } } },
+                new Player { Id = 6, Position = new(){ new() { Position = 6 } } },
             };
-
     }
 }
