@@ -3,13 +3,8 @@ using MTR.Domain;
 
 namespace MTR.Core;
 
-public class CardsManager : ICardsManager
+public class CardManager : ICardManager
 {
-    public CardsManager()
-    {
-
-    }
-
     public List<RoundCard> GenerateRoundCards(Round round, List<Card> cards, List<Player> players)
     {
         var random = new Random();

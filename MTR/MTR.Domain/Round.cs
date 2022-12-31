@@ -10,6 +10,7 @@ public record Round : IEntity
     public int StartPosition { get; set; }
     public DateTime Started { get; set; } = DateTime.UtcNow;
     public DateTime? Ended { get; set; }
+    public List<Turn> Turns { get; set; } = new();
     public List<RoundCard> RoundCards { get; set; }
     public List<RoundResult> RoundResults { get; set; }
 }

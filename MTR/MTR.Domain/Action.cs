@@ -10,4 +10,5 @@ public record Action : IEntity
     public ActionType ActionType { get; set; }
     public List<TurnCard> Cards { get; set; }
     public List<Cheat> Cheats { get; set; }
+    public DateTime Modified { get; set; } = DateTime.UtcNow;
 }

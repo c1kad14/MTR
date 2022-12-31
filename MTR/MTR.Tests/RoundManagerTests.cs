@@ -14,7 +14,7 @@ public class RoundManagerTests
     [Fact]
     public void RoundInit_FirstRound_Success()
     {
-        var am = AutoMock.GetStrict(x => x.RegisterType<CardsManager>().As<ICardsManager>());
+        var am = AutoMock.GetStrict(x => x.RegisterType<CardManager>().As<ICardManager>());
         var manager = am.Create<RoundManager>();
 
         var game = new Game { Players = WithPlayers() };
@@ -31,7 +31,7 @@ public class RoundManagerTests
     [Fact]
     public void RoundInit_SecondRound_Success()
     {
-        var am = AutoMock.GetStrict(x => x.RegisterType<CardsManager>().As<ICardsManager>());
+        var am = AutoMock.GetStrict(x => x.RegisterType<CardManager>().As<ICardManager>());
         var manager = am.Create<RoundManager>();
 
         var game = new Game { Players = WithPlayers(), Rounds = WithRounds() };

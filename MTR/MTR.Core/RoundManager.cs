@@ -6,19 +6,19 @@ namespace MTR.Core;
 
 public class RoundManager : IRoundManager
 {
-    private readonly ICardsManager _cardsManager;
+    private readonly ICardManager _cardManager;
 
-    public RoundManager(ICardsManager cardsManager)
+    public RoundManager(ICardManager cardsManager)
     {
-        _cardsManager = cardsManager;
+        _cardManager = cardsManager;
     }
 
     public Round RoundInit(Game game, List<Card> cards)
     {
         var players = game.Players.Where(p => !p.Removed.Any()).ToList();
-        var suit = _cardsManager.GetNextRoundSuit(game.Rounds);
+        var suit = _cardManager.GetNextRoundSuit(game.Rounds);
         var round = new Round { Game = game, GameId = game.Id, Suit = suit, Sequence = game.Rounds.Count() + 1 };
-        var roundCards = _cardsManager.GenerateRoundCards(round, cards, players);
+        var roundCards = _cardManager.GenerateRoundCards(round, cards, players);
 
         if (round.StartPosition == default)
         {

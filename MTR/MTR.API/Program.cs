@@ -22,7 +22,7 @@ var path = System.IO.Directory.GetCurrentDirectory();
 builder.Services.AddDbContext<MTRContext>(options => { options.UseSqlite($"Data Source={path}/mtr.db"); });
 builder.Services.AddAutoMapper(typeof(MTRProfile));
 builder.Services.AddMediatR(typeof(Program).Assembly);
-builder.Services.AddTransient<ICardsManager, CardsManager>();
+builder.Services.AddTransient<ICardManager, CardManager>();
 builder.Services.AddTransient<IRoundManager, RoundManager>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

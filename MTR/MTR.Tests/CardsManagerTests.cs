@@ -14,7 +14,7 @@ namespace MTR.Tests
         public void GetNextRoundSuit_NoPreviousSuit_ReturnsSpades()
         {
             var am = AutoMock.GetLoose();
-            var manager = am.Create<CardsManager>();
+            var manager = am.Create<CardManager>();
 
             var result = manager.GetNextRoundSuit(new());
 
@@ -25,7 +25,7 @@ namespace MTR.Tests
         public void GetNextRoundSuit_PreviousSuitSpades_ReturnsHearts()
         {
             var am = AutoMock.GetLoose();
-            var manager = am.Create<CardsManager>();
+            var manager = am.Create<CardManager>();
 
             var result = manager.GetNextRoundSuit(new() { new Round { Suit = Suit.SPADES } });
 
@@ -36,7 +36,7 @@ namespace MTR.Tests
         public void GetNextRoundSuit_PreviousSuitClubs_ReturnsHearts()
         {
             var am = AutoMock.GetLoose();
-            var manager = am.Create<CardsManager>();
+            var manager = am.Create<CardManager>();
 
             var result = manager.GetNextRoundSuit(new() { new Round { Suit = Suit.CLUBS } });
 
@@ -47,7 +47,7 @@ namespace MTR.Tests
         public void GenerateRoundCards_ThreePlayers_Success()
         {
             var am = AutoMock.GetLoose();
-            var manager = am.Create<CardsManager>();
+            var manager = am.Create<CardManager>();
 
             var cards = WithCards();
             var players = WithPlayers().Take(3).ToList();
@@ -66,7 +66,7 @@ namespace MTR.Tests
         public void GenerateRoundCards_FourPlayers_Success()
         {
             var am = AutoMock.GetLoose();
-            var manager = am.Create<CardsManager>();
+            var manager = am.Create<CardManager>();
 
             var cards = WithCards();
             var players = WithPlayers().Take(4).ToList();
@@ -85,7 +85,7 @@ namespace MTR.Tests
         public void GenerateRoundCards_FivePlayers_Success()
         {
             var am = AutoMock.GetLoose();
-            var manager = am.Create<CardsManager>();
+            var manager = am.Create<CardManager>();
 
             var cards = WithCards();
             var players = WithPlayers().Take(5).ToList();
@@ -105,7 +105,7 @@ namespace MTR.Tests
         public void GenerateRoundCards_SixPlayers_Success()
         {
             var am = AutoMock.GetLoose();
-            var manager = am.Create<CardsManager>();
+            var manager = am.Create<CardManager>();
 
             var cards = WithCards();
             var players = WithPlayers();

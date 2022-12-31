@@ -8,4 +8,6 @@ public record Turn : IEntity
     public int OppositePlayerId { get; set; }
     public Round Round { get; set; }
     public int RoundId { get; set; }
+    public List<Action> Actions { get; set; }
+    public DateTime Modified { get; set; } = DateTime.UtcNow;
 }
