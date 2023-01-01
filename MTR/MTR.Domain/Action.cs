@@ -8,7 +8,6 @@ public record Action : IEntity
     public Player Player { get; set; }
     public int PlayerId { get; set; }
     public ActionType ActionType { get; set; }
-    public List<TurnCard> Cards { get; set; }
-    public List<Cheat> Cheats { get; set; }
+    public List<TurnCard> TurnCards { get; set; }
     public DateTime Modified { get; set; } = DateTime.UtcNow;
 }

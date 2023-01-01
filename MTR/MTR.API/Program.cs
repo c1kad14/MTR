@@ -24,6 +24,8 @@ builder.Services.AddAutoMapper(typeof(MTRProfile));
 builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddTransient<ICardManager, CardManager>();
 builder.Services.AddTransient<IRoundManager, RoundManager>();
+builder.Services.AddTransient<IActionManager, ActionManager>();
+builder.Services.AddTransient<IPlayerManager, PlayerManager>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

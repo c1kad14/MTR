@@ -4,6 +4,7 @@ namespace MTR.Domain;
 
 public record RoundCard : IEntity
 {
+    public Guid Guid { get; set; }
     public Card Card { get; set; }
     public int CardId { get; set; }
     public Round Round { get; set; }

@@ -37,9 +37,10 @@ public class MTRContext : DbContext
     {
         modelBuilder.Entity<Action>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Game>().HasAlternateKey(a => new { a.Guid });
+        modelBuilder.Entity<Player>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<PlayerPosition>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Round>().HasAlternateKey(a => new { a.Guid });
-        modelBuilder.Entity<TurnCard>().HasAlternateKey(a => new { a.Guid });
+        modelBuilder.Entity<RoundCard>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<User>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<UserDetail>().HasAlternateKey(a => new { a.Guid });
 

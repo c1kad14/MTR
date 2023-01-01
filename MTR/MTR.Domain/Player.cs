@@ -4,6 +4,7 @@ namespace MTR.Domain;
 
 public record Player : IEntity
 {
+    public Guid Guid { get; set; }
     public Game Game { get; set; }
     public int GameId { get; set; }
     public User User { get; set; }

@@ -74,7 +74,6 @@ public class TurnManagerTests
         {
             StartPosition = 1,
             Turns = WithTurns(2)
-
         };
         var players = WithPlayers();
         var result = manager.GetNextTurn(round, players);
@@ -103,7 +102,6 @@ public class TurnManagerTests
         Assert.Equal(4, result.Player.Position.Single().Position);
         Assert.Equal(2, result.OppositePlayer.Position.Single().Position);
     }
-
 
     [Fact]
     public void GetNextTurn_HasPreviousTurnsLastOut_FirstPositionToGo()
