@@ -8,6 +8,7 @@ public record Action : IEntity
     public Player Player { get; set; }
     public int PlayerId { get; set; }
     public ActionType ActionType { get; set; }
-    public List<TurnCard> TurnCards { get; set; }
+    public List<TurnCard> TurnCards { get; set; } = new();
+    public List<MuckedCard> MuckedCards { get; set; } = new();
     public DateTime Modified { get; set; } = DateTime.UtcNow;
 }

@@ -8,8 +8,8 @@ public record TurnCard : IEntity
     public int ActionId { get; set; }
     public RoundCard RoundCard { get; set; }
     public int RoundCardId { get; set; }
-    public TurnCard? OppositeCard { get; set; }
-    public int? OppositeCardId { get; set; }
+    public TurnCard? OppositeTurnCard { get; set; }
+    public int? OppositeTurnCardId { get; set; }
     public DateTime Modified { get; set; } = DateTime.UtcNow;
     public List<Cheat> Cheats { get; set; }
 }

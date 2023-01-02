@@ -30,6 +30,8 @@ public class TossCardsCommandHandler : IRequestHandler<TossCardsCommand, Respons
     {
         var round = await _context.Rounds.Include(r => r.RoundCards)
                                          .ThenInclude(rc => rc.PlayerCards)
+                                         .ThenInclude(pc => pc.Player)
+                                         .ThenInclude(p => p.Position)
                                          .FirstOrDefaultAsync(rc => rc.Guid == request.RoundGuid);
 
         if (round is null)
@@ -60,8 +62,17 @@ public class TossCardsCommandHandler : IRequestHandler<TossCardsCommand, Respons
         if (action is null)
         {
             var roundCards = await _context.RoundCards
+                .Include(rc => rc.Card)
+                .Include(rc => rc.Round)
                 .Where(rc => request.Cards.Any(c => c.Guid == rc.Guid))
                 .ToListAsync();
+
+            var canToss = _actionManager.CanToss(round, turn, player, roundCards);
+
+            if (!canToss)
+            {
+                return new Response<ActionDto> { Message = "Can't toss a card" };
+            }
 
             action = _actionManager.TossCards(turn, player, roundCards);
 

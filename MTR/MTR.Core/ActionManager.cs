@@ -14,27 +14,107 @@ public class ActionManager : IActionManager
         _playerManager = playerManager;
     }
 
-    public Domain.Action HitCards(Turn turn, List<TurnCard> turnCards)
+    public Action HitCards(Turn turn, Player player, TurnCard turnCard, RoundCard roundCard)
     {
-        throw new NotImplementedException();
+        return new Action
+        {
+            ActionType = ActionType.HIT,
+            TurnId = turn.Id,
+            TurnCards = new()
+            {
+                new()
+                {
+                    TurnId = turn.Id,
+                    Turn = turn,
+                    RoundCardId = roundCard.Id,
+                    RoundCard = roundCard,
+                    OppositeTurnCardId = turnCard.Id,
+                    OppositeTurnCard = turnCard
+                }
+            },
+            PlayerId = player.Id
+        };
     }
 
-    public Domain.Action MuckCards(Turn turn, Player player)
+    public Action MuckCards(Turn turn, Player player)
     {
-        throw new NotImplementedException();
+        var muckedCards = new List<MuckedCard>();
+        var hitActions = turn.Actions.Where(a => a.ActionType == ActionType.HIT)
+            .ToList();
+
+        foreach (var turnCard in hitActions.SelectMany(a => a.TurnCards))
+        {
+            muckedCards.AddRange(new List<MuckedCard>
+            {
+                new()
+                {
+                    RoundCardId = turnCard.RoundCardId,
+                    RoundCard = turnCard.RoundCard
+                },
+                new()
+                {
+                    RoundCardId = turnCard.OppositeTurnCard!.RoundCardId,
+                    RoundCard = turnCard.OppositeTurnCard!.RoundCard
+                },
+            });
+        }
+
+        return new Action
+        {
+            ActionType = ActionType.MUCK,
+            PlayerId = player.Id,
+            Player = player,
+            TurnId = turn.Id,
+            Turn = turn,
+            MuckedCards = muckedCards
+        };
     }
 
-    public Domain.Action SkipTurn(Turn turn, Player player)
+    public Action SkipTurn(Turn turn, Player player)
     {
-        throw new NotImplementedException();
+        return new Action
+        {
+            ActionType = ActionType.SKIP,
+            TurnId = turn.Id,
+            Turn = turn,
+            PlayerId = player.Id,
+            Player = player
+        };
     }
 
-    public Domain.Action TakeCards(Turn turn)
+    public Action TakeCards(Turn turn)
     {
-        throw new NotImplementedException();
+        var roundCardsToTake = turn.TurnCards.Where(tc => tc.OppositeTurnCardId is null).Select(tc => tc.RoundCard);
+
+        foreach (var roundCard in roundCardsToTake)
+        {
+            var currentOwner = roundCard.PlayerCards.OrderByDescending(pc => pc.Modified).First();
+
+            if (currentOwner.PlayerId == turn.OppositePlayerId)
+            {
+                continue;
+            }
+
+            roundCard.PlayerCards.Add(new()
+            {
+                PlayerId = turn.OppositePlayerId,
+                Player = turn.OppositePlayer,
+                RoundCardId = roundCard.Id,
+                RoundCard = roundCard
+            });
+        }
+
+        return new()
+        {
+            ActionType = ActionType.TAKE,
+            PlayerId = turn.OppositePlayerId,
+            Player = turn.OppositePlayer,
+            Turn = turn,
+            TurnId = turn.Id
+        };
     }
 
-    public Domain.Action TossCards(Turn turn, Player player, List<RoundCard> roundCards)
+    public Action TossCards(Turn turn, Player player, List<RoundCard> roundCards)
     {
         var turnCards = new List<TurnCard>();
 
@@ -50,29 +130,62 @@ public class ActionManager : IActionManager
 
         return new Action
         {
-            Turn = turn,
-            TurnId = turn.Id,
-            Player = player,
-            PlayerId = player.Id,
             ActionType = ActionType.TOSS,
+            TurnId = turn.Id,
+            Turn = turn,
+            PlayerId = player.Id,
+            Player = player,
             TurnCards = turnCards
         };
     }
 
-    public bool CanToss(Round round, Turn turn, Player player, List<RoundCard> roundCards)
+    public bool CanHit(Round round, TurnCard cardToHit, RoundCard oppositeCard) =>
+        oppositeCard.Card.Rank > cardToHit.RoundCard.Card.Rank && oppositeCard.Card.Suit == cardToHit.RoundCard.Card.Suit
+        || oppositeCard.Card.Suit == round.Suit && cardToHit.RoundCard.Card.Suit != round.Suit;
+
+    public bool CanMuck(Turn turn)
+    {
+        var turnCards = turn.TurnCards.Where(t => t.OppositeTurnCardId is null);
+        var oppositeTurnCards = turn.TurnCards.Where(t => t.OppositeTurnCardId is not null);
+        return turnCards.All(tc => oppositeTurnCards.Any(c => c.OppositeTurnCardId == tc.Id));
+    }
+
+    public bool CanToss(Round round, Turn turn, Player player, List<RoundCard> cardsToToss)
     {
         var players = _playerManager.GetPlayersWithCards(round);
         var nextPlayer = _playerManager.GetNextPlayer(players, turn.OppositePlayer.Position.Single().Position);
-        var turnCardIds = turn.TurnCards.GroupBy(tc => tc.RoundCardId).Select(tcg => tcg.Key).ToList();
+        var turnCardRanks = turn.TurnCards.GroupBy(tc => tc.RoundCard.Card.Rank).Select(tcg => tcg.Key).ToList();
+        var cardsToHitCount = turn.TurnCards.Count(c => c.OppositeTurnCardId == null);
+        var hasMuck = round.RoundCards.Any(rc => rc.MuckedCards.Any());
 
+        if (turn.Actions.Any(a => a.ActionType == ActionType.TAKE))
+        {
+            return cardsToToss.All(rc => turnCardRanks.Contains(rc.Card.Rank));
+        }
+
+        // can't toss if there are 6 or more cards to hit
+        if (cardsToHitCount > 5)
+        {
+            return false;
+        }
+
+        // first muck is 5 cards
+        if (!hasMuck && cardsToHitCount > 4)
+        {
+            return false;
+        }
+
+        // turn player
         if (turn.PlayerId == player.Id)
         {
-            if (!turn.Actions.Any() && roundCards.GroupBy(rc => rc.Id).Count() == 1)
+            // if this is first action all cards must be the same rank
+            if (!turn.Actions.Any() && cardsToToss.GroupBy(rc => rc.Card.Rank).Count() == 1)
             {
                 return true;
             }
 
-            if (roundCards.All(rc => turnCardIds.Contains(rc.Id)))
+            // card with the same rank should be on the board
+            if (cardsToToss.All(rc => turnCardRanks.Contains(rc.Card.Rank)))
             {
                 return true;
             }
@@ -80,9 +193,11 @@ public class ActionManager : IActionManager
             return false;
         }
 
-        if (turn.PlayerId == player.Id)
+        // if this is player next to the opposite player
+        if (nextPlayer.Id == player.Id)
         {
-            if (roundCards.All(rc => turnCardIds.Contains(rc.Id)))
+            // card with the same rank should be on the board
+            if (cardsToToss.All(rc => turnCardRanks.Contains(rc.Card.Rank)))
             {
                 return true;
             }
@@ -90,14 +205,16 @@ public class ActionManager : IActionManager
             return false;
         }
 
+        // opposite player can't toss a card to himself
         if (turn.OppositePlayerId == player.Id)
         {
             return false;
         }
 
+        // all other player can toss only first rank card
         var firstCard = turn.Actions.OrderBy(a => a.Modified).First().TurnCards.First();
 
-        if (roundCards.All(rc => rc.Id == firstCard.RoundCardId))
+        if (cardsToToss.All(rc => rc.Card.Rank == firstCard.RoundCard.Card.Rank))
         {
             return true;
         }
