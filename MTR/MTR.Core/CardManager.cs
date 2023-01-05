@@ -37,7 +37,7 @@ public class CardManager : ICardManager
 
     public Suit GetNextRoundSuit(List<Round> rounds)
     {
-        var lastRound = rounds.OrderBy(r => r.Ended).LastOrDefault();
+        var lastRound = rounds.OrderBy(r => r.Started).LastOrDefault();
         var lastRoundSuit = (int)((lastRound?.Suit ?? 0) + 1);
         return lastRoundSuit > 4 ? Suit.SPADES : (Suit)lastRoundSuit;
     }

@@ -1,0 +1,30 @@
+﻿@page "/games"
+@inherits LayoutComponentBase
+@inject HttpClient Http
+
+<PageTitle>Games</PageTitle>
+
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        @Body
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ButtonOnClick">Create game</MudButton>
+
+    </MudContainer>
+</MudMainContent>
+
+@code {
+    public int ButtonClicked { get; set; }
+
+    void ButtonOnClick()
+    {
+
+    }
+
+    GameDto[] gameDto;
+
+    protected override async Task OnInitializedAsync()
+    {
+        gameDto = await Http.GetFromJsonAsync<GameDto[]>("Games");
+    }
+}

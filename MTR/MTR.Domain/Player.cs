@@ -7,8 +7,8 @@ public record Player : IEntity
     public Guid Guid { get; set; }
     public Game Game { get; set; }
     public int GameId { get; set; }
-    public User User { get; set; }
-    public int UserId { get; set; }
+    public MTRUser MTRUser { get; set; }
+    public Guid MTRUserId { get; set; }
     public List<PlayerPosition> Position { get; set; }
     public List<RoundResult> Results { get; set; }
     public List<PlayerRemoved> Removed { get; set; } = new();

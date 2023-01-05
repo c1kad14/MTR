@@ -318,13 +318,7 @@ namespace MTR.DAL.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("Ended")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("Guid")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("Started")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -332,6 +326,29 @@ namespace MTR.DAL.Migrations
                     b.HasAlternateKey("Guid");
 
                     b.ToTable("Games");
+                });
+
+            modelBuilder.Entity("MTR.Domain.GameStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("GameStatus");
                 });
 
             modelBuilder.Entity("MTR.Domain.Image", b =>
@@ -347,6 +364,79 @@ namespace MTR.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("MTR.Domain.MTRUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("Guid");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("MTR.Domain.MuckedCard", b =>
@@ -385,8 +475,8 @@ namespace MTR.DAL.Migrations
                     b.Property<Guid>("Guid")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid>("MTRUserId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -394,7 +484,7 @@ namespace MTR.DAL.Migrations
 
                     b.HasIndex("GameId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("MTRUserId");
 
                     b.ToTable("Players");
                 });
@@ -471,9 +561,6 @@ namespace MTR.DAL.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("Ended")
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("GameId")
                         .HasColumnType("INTEGER");
@@ -559,6 +646,29 @@ namespace MTR.DAL.Migrations
                     b.ToTable("RoundResults");
                 });
 
+            modelBuilder.Entity("MTR.Domain.RoundStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RoundId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoundId");
+
+                    b.ToTable("RoundStatus");
+                });
+
             modelBuilder.Entity("MTR.Domain.Turn", b =>
                 {
                     b.Property<int>("Id")
@@ -622,25 +732,6 @@ namespace MTR.DAL.Migrations
                     b.ToTable("TurnCards");
                 });
 
-            modelBuilder.Entity("MTR.Domain.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("Guid");
-
-                    b.ToTable("Users");
-                });
-
             modelBuilder.Entity("MTR.Domain.UserDetail", b =>
                 {
                     b.Property<int>("Id")
@@ -657,6 +748,9 @@ namespace MTR.DAL.Migrations
                     b.Property<int?>("ImageId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("MTRUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("TEXT");
 
@@ -664,22 +758,141 @@ namespace MTR.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.HasAlternateKey("Guid");
 
                     b.HasIndex("ImageId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("MTRUserId");
 
                     b.ToTable("UserDetails");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("MTR.Domain.Action", b =>
@@ -712,6 +925,17 @@ namespace MTR.DAL.Migrations
                     b.Navigation("TurnCard");
                 });
 
+            modelBuilder.Entity("MTR.Domain.GameStatus", b =>
+                {
+                    b.HasOne("MTR.Domain.Game", "Game")
+                        .WithMany("Status")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("MTR.Domain.MuckedCard", b =>
                 {
                     b.HasOne("MTR.Domain.Action", "Action")
@@ -739,15 +963,15 @@ namespace MTR.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MTR.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                    b.HasOne("MTR.Domain.MTRUser", "MTRUser")
+                        .WithMany("Players")
+                        .HasForeignKey("MTRUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Game");
 
-                    b.Navigation("User");
+                    b.Navigation("MTRUser");
                 });
 
             modelBuilder.Entity("MTR.Domain.PlayerCard", b =>
@@ -840,6 +1064,17 @@ namespace MTR.DAL.Migrations
                     b.Navigation("Round");
                 });
 
+            modelBuilder.Entity("MTR.Domain.RoundStatus", b =>
+                {
+                    b.HasOne("MTR.Domain.Round", "Round")
+                        .WithMany("Status")
+                        .HasForeignKey("RoundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Round");
+                });
+
             modelBuilder.Entity("MTR.Domain.Turn", b =>
                 {
                     b.HasOne("MTR.Domain.Player", "OppositePlayer")
@@ -906,15 +1141,66 @@ namespace MTR.DAL.Migrations
                         .WithMany()
                         .HasForeignKey("ImageId");
 
-                    b.HasOne("MTR.Domain.User", "User")
+                    b.HasOne("MTR.Domain.MTRUser", "MTRUser")
                         .WithMany("Details")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("MTRUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Image");
 
-                    b.Navigation("User");
+                    b.Navigation("MTRUser");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.HasOne("MTR.Domain.MTRUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.HasOne("MTR.Domain.MTRUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MTR.Domain.MTRUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.HasOne("MTR.Domain.MTRUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MTR.Domain.Action", b =>
@@ -929,6 +1215,15 @@ namespace MTR.DAL.Migrations
                     b.Navigation("Players");
 
                     b.Navigation("Rounds");
+
+                    b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("MTR.Domain.MTRUser", b =>
+                {
+                    b.Navigation("Details");
+
+                    b.Navigation("Players");
                 });
 
             modelBuilder.Entity("MTR.Domain.Player", b =>
@@ -945,6 +1240,8 @@ namespace MTR.DAL.Migrations
                     b.Navigation("RoundCards");
 
                     b.Navigation("RoundResults");
+
+                    b.Navigation("Status");
 
                     b.Navigation("Turns");
                 });
@@ -968,11 +1265,6 @@ namespace MTR.DAL.Migrations
             modelBuilder.Entity("MTR.Domain.TurnCard", b =>
                 {
                     b.Navigation("Cheats");
-                });
-
-            modelBuilder.Entity("MTR.Domain.User", b =>
-                {
-                    b.Navigation("Details");
                 });
 #pragma warning restore 612, 618
         }

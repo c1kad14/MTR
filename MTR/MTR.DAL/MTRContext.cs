@@ -1,4 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Duende.IdentityServer.EntityFramework.Options;
+
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 using MTR.Domain;
 
@@ -6,13 +12,10 @@ using Action = MTR.Domain.Action;
 
 namespace MTR.DAL;
 
-public class MTRContext : DbContext
+public class MTRContext : IdentityDbContext<MTRUser, IdentityRole<Guid>, Guid>
 {
-    public MTRContext(DbContextOptions options) : base(options)
+    public MTRContext(DbContextOptions<MTRContext> options) : base(options)
     {
-        //var folder = Environment.SpecialFolder.LocalApplicationData;
-        //var path = Environment.GetFolderPath(folder);
-        //DbPath = System.IO.Path.Join(path, "mtr.db");
     }
 
     public DbSet<Action> Actions { get; set; }
@@ -30,18 +33,18 @@ public class MTRContext : DbContext
     public DbSet<RoundResult> RoundResults { get; set; }
     public DbSet<Turn> Turns { get; set; }
     public DbSet<TurnCard> TurnCards { get; set; }
-    public DbSet<User> Users { get; set; }
     public DbSet<UserDetail> UserDetails { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Action>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Game>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Player>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<PlayerPosition>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<Round>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<RoundCard>().HasAlternateKey(a => new { a.Guid });
-        modelBuilder.Entity<User>().HasAlternateKey(a => new { a.Guid });
+        modelBuilder.Entity<MTRUser>().HasAlternateKey(a => new { a.Guid });
         modelBuilder.Entity<UserDetail>().HasAlternateKey(a => new { a.Guid });
 
         SeedCards(modelBuilder);

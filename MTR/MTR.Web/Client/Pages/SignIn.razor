@@ -1,0 +1,55 @@
+﻿@page "/signin"
+@layout SignInLayout
+@inject NavigationManager navigationManager
+@inject MTRAuthenticationStateProvider authenticationStateProvider
+
+<PageTitle>Sign in</PageTitle>
+
+<h1 class="h2 font-weight-normal signin-title">
+    Sign in to MTR
+</h1>
+
+<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="command">
+    <DataAnnotationsValidator />
+    <h4 class="font-weight-normal text-center">Sign in</h4>
+
+    <label for="inputUsername" class="sr-only">User Name</label>
+    <InputText id="inputUsername" class="form-control" @bind-Value="command.Username" autofocus placeholder="Username" />
+    <ValidationMessage For="@(() => command.Username)" />
+
+    <label for="inputPassword" class="sr-only">Password</label>
+    <InputText type="password" id="inputPassword" class="form-control" placeholder="Password" @bind-Value="command.Password" />
+    <ValidationMessage For="@(() => command.Password)" />
+
+    <div class="form-check m-3">
+        <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@command.RememberMe" />
+        <label class="form-check-label" for="inputRememberMe">Remember Me</label>
+    </div>
+
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+
+    <label class="text-danger">@error</label>
+
+    <NavLink href="signup">
+        <h6 class="font-weight-normal text-center">Sign up</h6>
+    </NavLink>
+</EditForm>
+
+@code{
+    SignInUserCommand command { get; set; } = new();
+    string error { get; set; }
+
+    async Task OnSubmit()
+    {
+        error = null;
+        try
+        {
+            await authenticationStateProvider.SignInAsync(command);
+            navigationManager.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}

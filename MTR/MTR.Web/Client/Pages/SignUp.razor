@@ -1,0 +1,61 @@
+﻿@page "/signup"
+@layout SignInLayout
+@inject NavigationManager navigationManager
+@inject MTRAuthenticationStateProvider authenticationStateProvider
+
+<PageTitle>Sign up</PageTitle>
+
+<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="command">
+    <DataAnnotationsValidator />
+    <h4 class="font-weight-normal text-center">Sign up</h4>
+
+    <label for="username" class="sr-only">User Name</label>
+    <InputText id="username" class="form-control" placeholder="Username" autofocus @bind-Value="@command.Username" />
+    <ValidationMessage For="@(() => command.Username)" />
+
+    <label for="email" class="sr-only">Email</label>
+    <InputText id="email" class="form-control" placeholder="email" autofocus @bind-Value="@command.Email" />
+    <ValidationMessage For="@(() => command.Email)" />
+
+    <label for="password" class="sr-only">Password</label>
+    <InputText type="password" id="password" class="form-control" placeholder="Password" @bind-Value="@command.Password" />
+    <ValidationMessage For="@(() => command.Password)" />
+
+    <label for="confirm" class="sr-only">Password Confirmation</label>
+    <InputText type="password" id="confirm" class="form-control" placeholder="Confirm password" @bind-Value="@command.Confirm" />
+    <ValidationMessage For="@(() => command.Confirm)" />
+
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
+
+    <label class="text-danger">@error</label>
+    <NavLink href="signin">
+        <h6 class="font-weight-normal text-center">Already have an account? Click here to sign in</h6>
+    </NavLink>
+</EditForm>
+
+@functions
+{
+    SignUpUserCommand command { get; set; } = new();
+    string error { get; set; }
+    Guid guid { get; set; }
+
+    protected override void OnInitialized()
+    {
+        guid = Guid.NewGuid();
+    }
+
+    async Task OnSubmit()
+    {
+        error = null;
+        try
+        {
+            command.Guid = guid;
+            await authenticationStateProvider.SignUpAsync(command);
+            navigationManager.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}
