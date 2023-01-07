@@ -1,6 +1,10 @@
 ﻿@page "/games"
+@using MTR.Domain
+@using MTR.Web.Shared.Queries
 @inherits LayoutComponentBase
 @inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject NavigationManager navigationManager
 
 <PageTitle>Games</PageTitle>
 
@@ -10,21 +14,64 @@
 
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ButtonOnClick">Create game</MudButton>
 
+        <MudTable Items="@gameDto.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>Owner</MudTh>
+                <MudTh>Type</MudTh>
+                <MudTh>Players</MudTh>
+                <MudTh>Join</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Owner">@context.Players.First(p => p.Guid == context.Guid).Username</MudTd>
+                <MudTd DataLabel="Type">@context.TableType</MudTd>
+                <MudTd DataLabel="Players">@context.Players.Count() / @context.MaxPlayers</MudTd>
+                <MudTd DataLabel="Join"><MudButton OnClick="@(() => JoinGame(context.Guid))">Join</MudButton></MudTd>
+            </RowTemplate>
+            <NoRecordsContent>No games to display</NoRecordsContent>
+        </MudTable>
     </MudContainer>
 </MudMainContent>
 
 @code {
-    public int ButtonClicked { get; set; }
+    private bool _loading;
+    private GameDto[] gameDto;
 
     void ButtonOnClick()
     {
-
+        var guid = Guid.NewGuid();
+        navigationManager.NavigateTo($"/games/{guid}");
     }
 
-    GameDto[] gameDto;
+    private async Task JoinGame(Guid gameGuid)
+    {
+        var playerGuid = Guid.NewGuid();
+        var command = new JoinGameCommand { Guid = gameGuid, PlayerGuid = playerGuid };
+        var response = await Http.PostAsJsonAsync("game/join", command);
+        var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
+
+        if (result.Success)
+        {
+            Snackbar.Add("Success", Severity.Success);
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        gameDto = await Http.GetFromJsonAsync<GameDto[]>("Games");
+        gameDto = new GameDto[] { };
+        _loading = true;
+        var query = new GetGamesQuery(1, new() { StatusType.NotStarted });
+        var response = await Http.PostAsJsonAsync("game/getgames", query);
+        var result = await response.Content.ReadFromJsonAsync<ResponseMultiple<GameDto>>();
+        _loading = false;
+
+        if (result.Success)
+        {
+            gameDto = result.Model;
+            Snackbar.Add("Success", Severity.Success);
+        }
+
+        Snackbar.Add(result.Message, Severity.Error);
+
+        // else toast message
     }
 }

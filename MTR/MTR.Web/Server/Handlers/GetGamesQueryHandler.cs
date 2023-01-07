@@ -27,8 +27,9 @@ public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMulti
 
     public async Task<ResponseMultiple<GameDto>> Handle(GetGamesQuery request, CancellationToken cancellationToken)
     {
-        List<GameDto> gameDtos;
+        var gameDtos = new List<GameDto>();
         var pageSize = 10;
+        var skip = pageSize * (request.Page - 1);
 
         try
         {
@@ -36,17 +37,21 @@ public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMulti
                                            .ThenInclude(p => p.MTRUser)
                                            .Include(g => g.Status)
                                            .Where(g => request.Status.Contains(g.Status.OrderBy(s => s.Modified).Last().Status))
-                                           .Skip(pageSize * 1 * request.Page)
+                                           .Skip(skip)
                                            .Take(pageSize)
                                            .ToListAsync();
 
-            gameDtos = _mapper.Map<List<GameDto>>(games);
+            foreach (var game in games)
+            {
+                var gameDto = _mapper.Map<GameDto>(game);
+                gameDtos.Add(gameDto);
+            }
         }
         catch (Exception ex)
         {
             return new ResponseMultiple<GameDto> { Message = ex.Message };
         }
 
-        return new ResponseMultiple<GameDto> { Success = true, Model = gameDtos };
+        return new ResponseMultiple<GameDto> { Success = true, Model = gameDtos.ToArray() };
     }
 }

@@ -20,6 +20,11 @@ public class MTRProfile : Profile
             .ForMember(d => d.Username, o => o.MapFrom(s => s.Name))
             .ForMember(d => d.Guid, o => o.MapFrom(s => s.MTRUser.Guid));
 
+
+        CreateMap<Player, PlayerDto>()
+            .ForMember(d => d.Username, o => o.MapFrom(s => s.MTRUser.UserName))
+            .ForMember(d => d.Guid, o => o.MapFrom(s => s.Guid));
+
         CreateMap<SignUpUserCommand, MTRUser>()
             .ForMember(d => d.Details, o => o.MapFrom(s => new List<UserDetail>
             {
@@ -38,9 +43,16 @@ public class MTRProfile : Profile
             .ForMember(d => d.Guid, o => o.MapFrom(s => s.MTRUser.Guid))
             .ForMember(d => d.Image, o => o.MapFrom(s => s.Image != null ? s.Image.Path : default));
 
-        CreateMap<(Game, MTRUser), Player>()
-            .ForMember(d => d.Game, o => o.MapFrom(s => s.Item1))
-            .ForMember(d => d.GameId, o => o.MapFrom(s => s.Item1.Id))
-            .ForMember(d => d.MTRUserId, o => o.MapFrom(s => s.Item2.Id));
+        CreateMap<TableType, string>().ConvertUsing(src => src.ToString());
+
+        CreateMap<Game, GameDto>()
+            .ForMember(d => d.MaxPlayers, o => o.MapFrom(s => (int)s.TableType))
+            .ReverseMap();
+
+        CreateMap<(JoinGameCommand, Game, MTRUser), Player>()
+            .ForMember(d => d.Guid, o => o.MapFrom(s => s.Item1.PlayerGuid))
+            .ForMember(d => d.Game, o => o.MapFrom(s => s.Item2))
+            .ForMember(d => d.GameId, o => o.MapFrom(s => s.Item2.Id))
+            .ForMember(d => d.MTRUserId, o => o.MapFrom(s => s.Item3.Id));
     }
 }

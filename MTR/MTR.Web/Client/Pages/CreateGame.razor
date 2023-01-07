@@ -1,0 +1,39 @@
+﻿@page "/games/{guid}"
+@inherits LayoutComponentBase
+@inject HttpClient Http
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+<h3>Create Game @Guid</h3>
+
+<MudSelect T="string" Label="Please select table type" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter" ValueChanged="TableTypeChanged">
+    <MudSelectItem Value="@(("ThreeMax"))">3-max</MudSelectItem>
+    <MudSelectItem Value="@(("FourMax"))">4-max</MudSelectItem>
+    <MudSelectItem Value="@(("FiveMax"))">5-max</MudSelectItem>
+    <MudSelectItem Value="@(("SixMax"))">6-max</MudSelectItem>
+</MudSelect>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="CreateGameInvoke">Create</MudButton>
+
+@code {
+    [Parameter]
+    public string Guid { get; set; }
+    private string _tableType;
+
+    private void TableTypeChanged(string value)
+    {
+        _tableType = value;
+    }
+
+    private async Task CreateGameInvoke()
+    {
+        var gameGuid = new Guid(Guid);
+        var command = new JoinGameCommand
+        {
+            TableType = _tableType,
+            Guid = gameGuid,
+            PlayerGuid = gameGuid
+        };
+
+        var response = await Http.PostAsJsonAsync("game/create", command);
+        var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
+    }
+}

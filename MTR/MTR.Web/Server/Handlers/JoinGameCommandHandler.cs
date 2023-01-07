@@ -9,6 +9,7 @@ using MTR.Web.Shared.Models;
 using MTR.DAL;
 using MTR.Domain;
 using MTR.DTO;
+using Microsoft.AspNetCore.Identity;
 
 namespace MTR.Web.Shared.Handlers;
 
@@ -16,65 +17,75 @@ public record JoinGameCommandHandler : IRequestHandler<JoinGameCommand, Response
 {
     private readonly MTRContext _context;
     private readonly IMapper _mapper;
+    private readonly UserManager<MTRUser> _userManager;
 
-    public JoinGameCommandHandler(MTRContext context, IMapper mapper)
+    public JoinGameCommandHandler(MTRContext context, IMapper mapper, UserManager<MTRUser> userManager)
     {
         _context = context;
         _mapper = mapper;
+        _userManager = userManager;
     }
 
     public async Task<Response<GameDto>> Handle(JoinGameCommand request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users.Include(u => u.Details).SingleOrDefaultAsync(u => u.Guid == request.UserGuid);
-
-        if (user is null)
+        try
         {
-            return new Response<GameDto> { Message = "Invalid user" };
+            var user = await _context.Users.Include(u => u.Details).SingleOrDefaultAsync(u => u.Guid == request.UserGuid);
+
+            if (user is null)
+            {
+                return new Response<GameDto> { Message = "Invalid user" };
+            }
+
+            var game = await _context.Games
+                .Include(g => g.Rounds)
+                .Include(g => g.Players)
+                .ThenInclude(p => p.Removed)
+                .Include(g => g.Players)
+                .ThenInclude(p => p.MTRUser)
+                .SingleOrDefaultAsync(g => g.Guid == request.Guid);
+
+            if (game is null)
+            {
+                game = _mapper.Map<Game>(request);
+                game.Status.Add(new GameStatus() { Status = StatusType.NotStarted });
+                await _context.Games.AddAsync(game);
+            }
+
+            if (game.Rounds.Any())
+            {
+                return new Response<GameDto> { Message = "Game has already started." };
+            }
+
+            if (game.Players.Count(p => !p.Removed.Any()) >= (int)game.TableType)
+            {
+                return new Response<GameDto> { Message = "Number of players reached the cap." };
+            }
+
+            var player = game.Players.SingleOrDefault(p => p.MTRUser.Guid == request.UserGuid && !p.Removed.Any());
+
+            if (player is null)
+            {
+                player = _mapper.Map<Player>((request, game, user));
+                await _context.Players.AddAsync(player);
+                await _context.SaveChangesAsync();
+            }
+
+            var playerUserIds = game.Players.Where(p => !p.Removed.Any()).Select(p => p.MTRUserId).ToList();
+            var userDetails = await _context.UserDetails
+                .Include(p => p.MTRUser)
+                .Where(d => playerUserIds.Contains(d.MTRUserId))
+                .GroupBy(d => d.MTRUserId)
+                .Select(d => d.OrderByDescending(d => d.Modified).First())
+                .ToListAsync();
+
+            var gameDto = _mapper.Map<GameDto>((game, userDetails));
+
+            return new Response<GameDto> { Success = true, Model = gameDto };
         }
-
-        var game = await _context.Games
-            .Include(g => g.Rounds)
-            .Include(g => g.Players)
-            .ThenInclude(p => p.Removed)
-            .Include(g => g.Players)
-            .ThenInclude(p => p.MTRUser)
-            .SingleOrDefaultAsync(g => g.Guid == request.Guid);
-
-        if (game is null)
+        catch (Exception ex)
         {
-            game = _mapper.Map<Game>(request);
-            await _context.Games.AddAsync(game);
+            return new Response<GameDto> { Message = ex.Message };
         }
-
-        if (game.Rounds.Any())
-        {
-            return new Response<GameDto> { Message = "Game has already started." };
-        }
-
-        if (game.Players.Count(p => !p.Removed.Any()) > 5)
-        {
-            return new Response<GameDto> { Message = "Number of players reached the cap." };
-        }
-
-        var player = game.Players.SingleOrDefault(p => p.MTRUser.Guid == request.UserGuid && !p.Removed.Any());
-
-        if (player is null)
-        {
-            player = _mapper.Map<Player>((game, user));
-            await _context.Players.AddAsync(player);
-            await _context.SaveChangesAsync();
-        }
-
-        var playerUserIds = game.Players.Where(p => !p.Removed.Any()).Select(p => p.MTRUserId).ToList();
-        var userDetails = await _context.UserDetails
-            .Include(p => p.MTRUser)
-            .Where(d => playerUserIds.Contains(d.MTRUserId))
-            .GroupBy(d => d.MTRUserId)
-            .Select(d => d.OrderByDescending(d => d.Modified).First())
-            .ToListAsync();
-
-        var gameDto = _mapper.Map<GameDto>((game, userDetails));
-
-        return new Response<GameDto> { Success = true, Model = gameDto };
     }
 }
