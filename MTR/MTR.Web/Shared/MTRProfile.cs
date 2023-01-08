@@ -44,6 +44,7 @@ public class MTRProfile : Profile
             .ForMember(d => d.Image, o => o.MapFrom(s => s.Image != null ? s.Image.Path : default));
 
         CreateMap<TableType, string>().ConvertUsing(src => src.ToString());
+        CreateMap<StatusType, string>().ConvertUsing(src => src.ToString());
 
         CreateMap<Game, GameDto>()
             .ForMember(d => d.MaxPlayers, o => o.MapFrom(s => (int)s.TableType))

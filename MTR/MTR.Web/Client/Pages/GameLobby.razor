@@ -1,0 +1,54 @@
+﻿@page "/games/{guid}"
+@inherits LayoutComponentBase
+@inject HttpClient Http
+
+<h3>GameLobby</h3>
+
+<MudChip Color="Color.Secondary">@game.TableType</MudChip>
+
+
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudTable Items="@game.Players" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Score</MudTh>
+                <MudTh>Ready</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Username</MudTd>
+                <MudTd DataLabel="Score">@context.Score</MudTd>
+                <MudTd DataLabel="Ready"><MudIcon Icon="@Icons.Material.Filled.CheckCircleOutline"/></MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary">Ready</MudButton>
+
+    </MudContainer>
+</MudMainContent>
+
+@code {
+    [Parameter]
+    public string Guid { get; set; }
+    private bool loading;
+    private GameDto game = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        var query = new GetGameQuery(new Guid(Guid));
+        var response = await Http.PostAsJsonAsync("game/getgame", query);
+        var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
+        loading = false;
+
+        if (result.Success)
+        {
+            game = result.Model;
+            //Snackbar.Add("Success", Severity.Success);
+        }
+
+        //Snackbar.Add(result.Message, Severity.Error);
+
+        // else toast message
+    }
+}

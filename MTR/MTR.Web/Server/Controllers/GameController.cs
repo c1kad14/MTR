@@ -30,6 +30,10 @@ public class GameController : ControllerBase
     [Route("GetGames")]
     public async Task<ResponseMultiple<GameDto>> GetGames([FromBody] GetGamesQuery query) => await _mediator.Send(query);
 
+    [HttpPost]
+    [Route("GetGame")]
+    public async Task<Response<GameDto>> GetGame([FromBody] GetGameQuery query) => await _mediator.Send(query);
+
     [Authorize]
     [HttpPost]
     [Route("Create")]

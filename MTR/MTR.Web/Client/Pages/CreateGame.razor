@@ -1,8 +1,7 @@
-﻿@page "/games/{guid}"
+﻿@page "/games/create"
 @inherits LayoutComponentBase
 @inject HttpClient Http
-@inject AuthenticationStateProvider GetAuthenticationStateAsync
-<h3>Create Game @Guid</h3>
+<h3>Create Game</h3>
 
 <MudSelect T="string" Label="Please select table type" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter" ValueChanged="TableTypeChanged">
     <MudSelectItem Value="@(("ThreeMax"))">3-max</MudSelectItem>
@@ -14,8 +13,6 @@
 <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="CreateGameInvoke">Create</MudButton>
 
 @code {
-    [Parameter]
-    public string Guid { get; set; }
     private string _tableType;
 
     private void TableTypeChanged(string value)
@@ -25,7 +22,7 @@
 
     private async Task CreateGameInvoke()
     {
-        var gameGuid = new Guid(Guid);
+        var gameGuid = Guid.NewGuid();
         var command = new JoinGameCommand
         {
             TableType = _tableType,

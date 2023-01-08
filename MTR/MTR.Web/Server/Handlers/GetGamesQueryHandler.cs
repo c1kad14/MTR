@@ -30,13 +30,14 @@ public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMulti
         var gameDtos = new List<GameDto>();
         var pageSize = 10;
         var skip = pageSize * (request.Page - 1);
+        var statuses = _mapper.Map<List<StatusType>>(request.Status);
 
         try
         {
             var games = await _context.Games.Include(g => g.Players)
                                            .ThenInclude(p => p.MTRUser)
                                            .Include(g => g.Status)
-                                           .Where(g => request.Status.Contains(g.Status.OrderBy(s => s.Modified).Last().Status))
+                                           .Where(g => statuses.Contains(g.Status.OrderBy(s => s.Modified).Last().Status))
                                            .Skip(skip)
                                            .Take(pageSize)
                                            .ToListAsync();
