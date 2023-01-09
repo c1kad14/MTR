@@ -30,7 +30,14 @@ public class CardManager : ICardManager
             }
         }
 
-        round.StartPosition = minRankSuitCard?.PlayerCards.Single().Player.Position.Single().Position ?? 0;
+        if (minRankSuitCard?.PlayerCards.Single().Player is not null)
+        {
+            round.StartPlayer.Add(new()
+            {
+                Player = minRankSuitCard.PlayerCards.Single().Player,
+                PlayerId = minRankSuitCard.PlayerCards.Single().PlayerId
+            });
+        }
 
         return roundCards;
     }

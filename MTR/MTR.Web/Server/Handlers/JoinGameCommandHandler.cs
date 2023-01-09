@@ -48,7 +48,24 @@ public record JoinGameCommandHandler : IRequestHandler<JoinGameCommand, Response
             if (game is null)
             {
                 game = _mapper.Map<Game>(request);
-                game.Status.Add(new GameStatus() { Status = StatusType.NotStarted });
+                game.Status.Add(new()
+                {
+                    Status = StatusType.NotStarted
+                });
+                game.Rounds.Add(new()
+                {
+                    Guid = request.Guid,
+                    Sequence = 1,
+                    Suit = Suit.SPADES,
+                    Status = new()
+                    {
+                        new RoundStatus
+                        {
+                            Status = StatusType.NotStarted
+                        }
+                    }
+                });
+
                 await _context.Games.AddAsync(game);
             }
 

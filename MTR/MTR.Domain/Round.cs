@@ -7,7 +7,7 @@ public record Round : IEntity
     public Game Game { get; set; }
     public int GameId { get; set; }
     public Suit Suit { get; set; }
-    public int StartPosition { get; set; }
+    public List<PlayerRoundPosition> StartPlayer { get; set; } = new();
     public DateTime Started { get; set; } = DateTime.UtcNow;
     public List<RoundStatus> Status { get; set; } = new();
     public List<Turn> Turns { get; set; } = new();

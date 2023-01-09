@@ -20,11 +20,32 @@ public class RoundManager : IRoundManager
         var round = new Round { Game = game, GameId = game.Id, Suit = suit, Sequence = game.Rounds.Count() + 1 };
         var roundCards = _cardManager.GenerateRoundCards(round, cards, players);
 
-        if (round.StartPosition == default)
+        if (!round.StartPlayer.Any())
         {
             var lastRound = game.Rounds.OrderByDescending(r => r.Sequence).FirstOrDefault();
             var lastRoundLooser = lastRound?.RoundResults.OrderBy(r => r.Score).First();
-            round.StartPosition = lastRoundLooser?.Player.Position.Single().Position ?? 1;
+
+            PlayerRoundPosition startPosition = null;
+
+            if (lastRoundLooser is not null)
+            {
+                startPosition = new()
+                {
+                    Player = lastRoundLooser.Player,
+                    PlayerId = lastRoundLooser.PlayerId
+                };
+            }
+            else
+            {
+                var firstBoxPlayer = players.OrderBy(p => p.Position.Single().Position).First();
+                startPosition = new()
+                {
+                    Player = firstBoxPlayer,
+                    PlayerId = firstBoxPlayer.Id
+                };
+            }
+
+            round.StartPlayer.Add(startPosition);
         }
 
         round.RoundCards = roundCards;

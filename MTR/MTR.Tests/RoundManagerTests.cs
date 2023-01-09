@@ -25,7 +25,7 @@ public class RoundManagerTests
         Assert.Equal(24, round.RoundCards.Where(r => r.PlayerCards.Any()).Count());
         Assert.Equal(1, round.Sequence);
         Assert.Equal(Suit.SPADES, round.Suit);
-        Assert.True(round.StartPosition > 0);
+        Assert.True(round.StartPlayer.Any());
     }
 
     [Fact]
@@ -42,16 +42,13 @@ public class RoundManagerTests
         Assert.Equal(24, round.RoundCards.Where(r => r.PlayerCards.Any()).Count());
         Assert.Equal(Suit.HEARTS, round.Suit);
         Assert.Equal(2, round.Sequence);
-        Assert.True(round.StartPosition > 0);
+        Assert.True(round.StartPlayer.Any());
     }
 
     [Fact]
     public void RoundInit_SecondRoundNoStartPosition_SixthPlayerStartPosition()
     {
         var am = AutoMock.GetLoose();
-        //am.Mock<ICardsManager>()
-        //    .Setup(x => x.GenerateRoundCards(It.IsAny<Round>(), It.IsAny<List<Card>>(), It.IsAny<List<Player>>()))
-        //    .Returns();
         var manager = am.Create<RoundManager>();
 
         var game = new Game { Players = WithPlayers(), Rounds = WithRounds() };
@@ -60,16 +57,13 @@ public class RoundManagerTests
 
         Assert.NotNull(round);
         Assert.Equal(2, round.Sequence);
-        Assert.Equal(2, round.StartPosition);
+        Assert.Equal(2, round.StartPlayer.Single().Player.Position.Single().Position);
     }
 
     [Fact]
     public void RoundInit_FirstRoundNoStartPosition_FirstPlayerStartPosition()
     {
         var am = AutoMock.GetLoose();
-        //am.Mock<ICardsManager>()
-        //    .Setup(x => x.GenerateRoundCards(It.IsAny<Round>(), It.IsAny<List<Card>>(), It.IsAny<List<Player>>()))
-        //    .Returns();
         var manager = am.Create<RoundManager>();
 
         var game = new Game { Players = WithPlayers() };
@@ -78,7 +72,7 @@ public class RoundManagerTests
 
         Assert.NotNull(round);
         Assert.Equal(1, round.Sequence);
-        Assert.Equal(1, round.StartPosition);
+        Assert.Equal(3, round.StartPlayer.Single().Player.Position.Single().Position);
     }
 
     private List<Round> WithRounds() =>

@@ -15,11 +15,19 @@ public class TurnManagerTests
         var am = AutoMock.GetStrict(x => x.RegisterType<PlayerManager>().As<IPlayerManager>());
         var manager = am.Create<TurnManager>();
 
+        var players = WithPlayers();
+        var startPlayer = players.Single(p => p.Id == 2);
         var round = new Round
         {
-            StartPosition = 2
+            StartPlayer = new()
+            {
+                new()
+                {
+                    Player = startPlayer,
+                    PlayerId = startPlayer.Id
+                }
+            },
         };
-        var players = WithPlayers();
         var result = manager.GetNextTurn(round, players);
 
         Assert.NotNull(result);
@@ -33,11 +41,19 @@ public class TurnManagerTests
         var am = AutoMock.GetStrict(x => x.RegisterType<PlayerManager>().As<IPlayerManager>());
         var manager = am.Create<TurnManager>();
 
+        var players = WithPlayers();
+        var startPlayer = players.Single(p => p.Id == 4);
         var round = new Round
         {
-            StartPosition = 4
+            StartPlayer = new()
+            {
+                new()
+                {
+                    Player = startPlayer,
+                    PlayerId = startPlayer.Id
+                }
+            },
         };
-        var players = WithPlayers();
         var result = manager.GetNextTurn(round, players);
 
         Assert.NotNull(result);
@@ -51,12 +67,12 @@ public class TurnManagerTests
         var am = AutoMock.GetStrict(x => x.RegisterType<PlayerManager>().As<IPlayerManager>());
         var manager = am.Create<TurnManager>();
 
+        var players = WithPlayers();
         var round = new Round
         {
-            StartPosition = 1,
+            StartPlayer = new() { new() { Player = players.Single(p => p.Id == 2) } },
             Turns = WithTurns(1)
         };
-        var players = WithPlayers();
         var result = manager.GetNextTurn(round, players);
 
         Assert.NotNull(result);
@@ -70,12 +86,12 @@ public class TurnManagerTests
         var am = AutoMock.GetStrict(x => x.RegisterType<PlayerManager>().As<IPlayerManager>());
         var manager = am.Create<TurnManager>();
 
+        var players = WithPlayers();
         var round = new Round
         {
-            StartPosition = 1,
+            StartPlayer = new() { new() { Player = players.Single(p => p.Id == 2) } },
             Turns = WithTurns(2)
         };
-        var players = WithPlayers();
         var result = manager.GetNextTurn(round, players);
 
         Assert.NotNull(result);
@@ -89,13 +105,13 @@ public class TurnManagerTests
         var am = AutoMock.GetStrict(x => x.RegisterType<PlayerManager>().As<IPlayerManager>());
         var manager = am.Create<TurnManager>();
 
+        var players = WithPlayers(1, 3);
         var round = new Round
         {
-            StartPosition = 1,
+            StartPlayer = new() { new() { Player = players.Single(p => p.Id == 2) } },
             Turns = WithTurns(2)
 
         };
-        var players = WithPlayers(1, 3);
         var result = manager.GetNextTurn(round, players);
 
         Assert.NotNull(result);
@@ -109,12 +125,12 @@ public class TurnManagerTests
         var am = AutoMock.GetStrict(x => x.RegisterType<PlayerManager>().As<IPlayerManager>());
         var manager = am.Create<TurnManager>();
 
+        var players = WithPlayers(0, 3);
         var round = new Round
         {
-            StartPosition = 1,
+            StartPlayer = new() { new() { Player = players.Single(p => p.Id == 1) } },
             Turns = WithTurns(2)
         };
-        var players = WithPlayers(0, 3);
         var result = manager.GetNextTurn(round, players);
 
         Assert.NotNull(result);

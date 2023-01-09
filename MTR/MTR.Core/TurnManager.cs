@@ -20,7 +20,7 @@ public class TurnManager : ITurnManager
 
         if (previousTurn is null)
         {
-            player = players.Single(p => p.Position.Single().Position == round.StartPosition);
+            player = players.Single(p => p.Id == round.StartPlayer.Single().PlayerId);
         }
         else
         {
