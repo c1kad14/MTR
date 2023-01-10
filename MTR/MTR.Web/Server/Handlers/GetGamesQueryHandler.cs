@@ -42,11 +42,7 @@ public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMulti
                                            .Take(pageSize)
                                            .ToListAsync();
 
-            foreach (var game in games)
-            {
-                var gameDto = _mapper.Map<GameDto>(game);
-                gameDtos.Add(gameDto);
-            }
+            gameDtos = _mapper.Map<List<GameDto>>(games);
         }
         catch (Exception ex)
         {

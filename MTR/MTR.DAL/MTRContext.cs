@@ -30,6 +30,7 @@ public class MTRContext : IdentityDbContext<MTRUser, IdentityRole<Guid>, Guid>
     public DbSet<PlayerRemoved> PlayerRemoved { get; set; }
     public DbSet<Round> Rounds { get; set; }
     public DbSet<RoundCard> RoundCards { get; set; }
+    public DbSet<RoundReady> RoundReady { get; set; }
     public DbSet<RoundResult> RoundResults { get; set; }
     public DbSet<Turn> Turns { get; set; }
     public DbSet<TurnCard> TurnCards { get; set; }

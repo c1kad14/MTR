@@ -30,11 +30,13 @@ public record JoinGameCommandHandler : IRequestHandler<JoinGameCommand, Response
     {
         try
         {
+            var transaction = await _context.Database.BeginTransactionAsync();
+
             var user = await _context.Users.Include(u => u.Details).SingleOrDefaultAsync(u => u.Guid == request.UserGuid);
 
             if (user is null)
             {
-                return new Response<GameDto> { Message = "Invalid user" };
+                return new Response<GameDto> { Message = "Invalid user." };
             }
 
             var game = await _context.Games
@@ -67,9 +69,10 @@ public record JoinGameCommandHandler : IRequestHandler<JoinGameCommand, Response
                 });
 
                 await _context.Games.AddAsync(game);
+                await _context.SaveChangesAsync();
             }
 
-            if (game.Rounds.Any())
+            if (game.Status.Any(s => s.Status != StatusType.NotStarted))
             {
                 return new Response<GameDto> { Message = "Game has already started." };
             }
@@ -87,6 +90,8 @@ public record JoinGameCommandHandler : IRequestHandler<JoinGameCommand, Response
                 await _context.Players.AddAsync(player);
                 await _context.SaveChangesAsync();
             }
+
+            await transaction.CommitAsync();
 
             var playerUserIds = game.Players.Where(p => !p.Removed.Any()).Select(p => p.MTRUserId).ToList();
             var userDetails = await _context.UserDetails

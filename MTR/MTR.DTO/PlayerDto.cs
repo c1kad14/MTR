@@ -6,4 +6,5 @@ public record PlayerDto : IDto
     public string Username { get; set; }
     public DateTime Modified { get; set; }
     public int? Score { get; set; }
+    public bool IsReady { get; set; }
 }

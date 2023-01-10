@@ -53,4 +53,15 @@ public class GameController : ControllerBase
         command.UserGuid = user.Guid;
         return await _mediator.Send(command);
     }
+
+    [Authorize]
+    [HttpPost]
+    [Route("Ready")]
+    public async Task<Response<EmptyDto>> Ready([FromBody] RoundReadyCommand command)
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+        command.UserGuid = user.Guid;
+        return await _mediator.Send(command);
+    }
+
 }

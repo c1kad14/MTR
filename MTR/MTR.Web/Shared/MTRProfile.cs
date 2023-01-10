@@ -23,6 +23,7 @@ public class MTRProfile : Profile
 
         CreateMap<Player, PlayerDto>()
             .ForMember(d => d.Username, o => o.MapFrom(s => s.MTRUser.UserName))
+            .ForMember(d => d.IsReady, o => o.MapFrom(s => s.RoundReady.OrderByDescending(rr => rr.Modified).First().Ready))
             .ForMember(d => d.Guid, o => o.MapFrom(s => s.Guid));
 
         CreateMap<SignUpUserCommand, MTRUser>()

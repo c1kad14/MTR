@@ -10,6 +10,7 @@ using MediatR;
 using MTR.Domain;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using MTR.Web.Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,8 +63,14 @@ builder.Services.AddTransient<ICardManager, CardManager>();
 builder.Services.AddTransient<IRoundManager, RoundManager>();
 builder.Services.AddTransient<IActionManager, ActionManager>();
 builder.Services.AddTransient<IPlayerManager, PlayerManager>();
-
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
+});
 var app = builder.Build();
+app.UseResponseCompression();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -90,6 +97,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
+app.MapHub<GameHub>("/gamehub");
 app.MapFallbackToFile("index.html");
 
 app.Run();

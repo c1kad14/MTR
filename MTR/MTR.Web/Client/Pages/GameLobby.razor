@@ -1,6 +1,8 @@
 ﻿@page "/games/{guid}"
 @inherits LayoutComponentBase
 @inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 <h3>GameLobby</h3>
 
@@ -9,7 +11,7 @@
 
 <MudMainContent>
     <MudContainer MaxWidth="MaxWidth.Medium">
-        <MudTable Items="@game.Players" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+        <MudTable Items="@players" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
             <HeaderContent>
                 <MudTh>Name</MudTh>
                 <MudTh>Score</MudTh>
@@ -18,37 +20,97 @@
             <RowTemplate>
                 <MudTd DataLabel="Name">@context.Username</MudTd>
                 <MudTd DataLabel="Score">@context.Score</MudTd>
-                <MudTd DataLabel="Ready"><MudIcon Icon="@Icons.Material.Filled.CheckCircleOutline"/></MudTd>
+                <MudTd DataLabel="Ready"><MudIcon Color="GetReady(context.IsReady)" Icon="@Icons.Material.Filled.CheckCircleOutline" /></MudTd>
             </RowTemplate>
         </MudTable>
 
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary">Ready</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReadyClick">Ready</MudButton>
 
     </MudContainer>
 </MudMainContent>
 
 @code {
     [Parameter]
-    public string Guid { get; set; }
+    public string Guid { get; set; } = string.Empty;
     private bool loading;
     private GameDto game = new();
+    private List<PlayerDto> players = new();
+    private HubConnection? hubConnection;
+
+    public async Task ReadyClick()
+    {
+        var command = new RoundReadyCommand
+            {
+                RoundGuid = new Guid(Guid)
+            };
+
+        var response = await Http.PostAsJsonAsync("game/ready", command);
+        var result = await response.Content.ReadFromJsonAsync<Response<EmptyDto>>();
+
+        if (result?.Model is not null && result.Success && result.Model.Success)
+        {
+            Snackbar.Add("Ready", Severity.Success);
+
+            if (hubConnection is not null)
+            {
+                await hubConnection.SendAsync("RoundReady", Guid, true);
+            }
+        }
+
+        Snackbar.Add(result?.Message, Severity.Error);
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        await ConnectAsync();
+
         loading = true;
         var query = new GetGameQuery(new Guid(Guid));
         var response = await Http.PostAsJsonAsync("game/getgame", query);
         var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
         loading = false;
 
-        if (result.Success)
+        if (result?.Success ?? false)
         {
-            game = result.Model;
+            if (result.Model is not null)
+            {
+                game = result.Model;
+                players = result.Model.Players;
+            }
             //Snackbar.Add("Success", Severity.Success);
         }
 
         //Snackbar.Add(result.Message, Severity.Error);
 
         // else toast message
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    private async Task ConnectAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/gamehub"))
+            .Build();
+
+        hubConnection.On<Guid, bool>("PlayerReadyChanged", (playerGuid, isReady) =>
+        {
+            var playerChanged = players.Single(p => p.Guid == playerGuid);
+            playerChanged.IsReady = isReady;
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private Color GetReady(bool isReady)
+    {
+        return isReady ? Color.Success : Color.Error;
     }
 }

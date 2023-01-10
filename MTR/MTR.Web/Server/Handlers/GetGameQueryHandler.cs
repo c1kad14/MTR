@@ -35,7 +35,7 @@ public class GetGameQueryHandler : IRequestHandler<GetGameQuery, Response<GameDt
 
         if (game is null)
         {
-            return new Response<GameDto> { Message = "Game not found" };
+            return new Response<GameDto> { Message = "Game not found." };
         }
 
         var gameDto = _mapper.Map<GameDto>(game);

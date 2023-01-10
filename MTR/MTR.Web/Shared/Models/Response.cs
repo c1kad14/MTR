@@ -2,7 +2,7 @@
 
 namespace MTR.Web.Shared.Models;
 
-public record Response<TModel> where TModel : class, IDto, new()
+public record Response<TModel> where TModel : class, IDto
 {
     public string? Message { get; set; }
     public bool Success { get; set; }
