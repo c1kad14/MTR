@@ -7,9 +7,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MTR.Web.Shared.Commands;
 
-public record RoundReadyCommand : IRequest<Response<EmptyDto>>
+public record RoundReadyCommand : IRequest<Response<RoundReadyDto>>
 {
     [Required]
     public Guid RoundGuid { get; set; }
-    public Guid UserGuid { get; set; }
+
+    [Required]
+    public Guid PlayerGuid { get; set; }
+
+    [Required]
+    public bool IsReady { get; set; }
 }

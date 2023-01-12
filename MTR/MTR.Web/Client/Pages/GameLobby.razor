@@ -3,11 +3,11 @@
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
 <h3>GameLobby</h3>
 
 <MudChip Color="Color.Secondary">@game.TableType</MudChip>
-
 
 <MudMainContent>
     <MudContainer MaxWidth="MaxWidth.Medium">
@@ -24,14 +24,15 @@
             </RowTemplate>
         </MudTable>
 
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReadyClick">Ready</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReadyClick">@(!isReady ? "Ready" : "Not ready")</MudButton>
+        </MudContainer>
+    </MudMainContent>
 
-    </MudContainer>
-</MudMainContent>
-
-@code {
+    @code {
     [Parameter]
     public string Guid { get; set; } = string.Empty;
+    private Guid playerGuid;
+    private bool isReady;
     private bool loading;
     private GameDto game = new();
     private List<PlayerDto> players = new();
@@ -41,19 +42,21 @@
     {
         var command = new RoundReadyCommand
             {
-                RoundGuid = new Guid(Guid)
+                RoundGuid = new Guid(Guid),
+                PlayerGuid = playerGuid,
+                IsReady = !isReady
             };
 
         var response = await Http.PostAsJsonAsync("game/ready", command);
-        var result = await response.Content.ReadFromJsonAsync<Response<EmptyDto>>();
+        var result = await response.Content.ReadFromJsonAsync<Response<RoundReadyDto>>();
 
-        if (result?.Model is not null && result.Success && result.Model.Success)
+        if (result?.Model is not null && result.Success)
         {
-            Snackbar.Add("Ready", Severity.Success);
+            isReady = result.Model.IsReady;
 
             if (hubConnection is not null)
             {
-                await hubConnection.SendAsync("RoundReady", Guid, true);
+                await hubConnection.SendAsync("RoundReady", Guid, playerGuid, isReady);
             }
         }
 
@@ -65,9 +68,16 @@
         await ConnectAsync();
 
         loading = true;
+
         var query = new GetGameQuery(new Guid(Guid));
         var response = await Http.PostAsJsonAsync("game/getgame", query);
         var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
+
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("JoinGroup", Guid);
+        }
+
         loading = false;
 
         if (result?.Success ?? false)
@@ -77,19 +87,16 @@
                 game = result.Model;
                 players = result.Model.Players;
             }
-            //Snackbar.Add("Success", Severity.Success);
         }
 
         //Snackbar.Add(result.Message, Severity.Error);
-
-        // else toast message
     }
 
-    public async ValueTask DisposeAsync()
+    void IDisposable.Dispose()
     {
         if (hubConnection is not null)
         {
-            await hubConnection.DisposeAsync();
+            hubConnection.SendAsync("LeaveGroup", Guid);
         }
     }
 
@@ -103,7 +110,27 @@
         {
             var playerChanged = players.Single(p => p.Guid == playerGuid);
             playerChanged.IsReady = isReady;
+
             StateHasChanged();
+        });
+
+        hubConnection.On<Guid>("JoinGroupCallback", (playerGuid) =>
+        {
+            this.playerGuid = playerGuid;
+
+            isReady = players.SingleOrDefault(p => p.Guid == playerGuid)?.IsReady ?? false;
+
+            StateHasChanged();
+        });
+
+        hubConnection.On<PlayerDto>("PlayerJoined", (player) =>
+        {
+            if (players.All(p => p.Guid != player.Guid))
+            {
+                players.Add(player);
+
+                StateHasChanged();
+            }
         });
 
         await hubConnection.StartAsync();

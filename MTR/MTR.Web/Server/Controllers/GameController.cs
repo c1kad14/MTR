@@ -28,7 +28,7 @@ public class GameController : ControllerBase
 
     [HttpPost]
     [Route("GetGames")]
-    public async Task<ResponseMultiple<GameDto>> GetGames([FromBody] GetGamesQuery query) => await _mediator.Send(query);
+    public async Task<ResponseMultiple<GameListItemDto>> GetGames([FromBody] GetGamesQuery query) => await _mediator.Send(query);
 
     [HttpPost]
     [Route("GetGame")]
@@ -57,10 +57,8 @@ public class GameController : ControllerBase
     [Authorize]
     [HttpPost]
     [Route("Ready")]
-    public async Task<Response<EmptyDto>> Ready([FromBody] RoundReadyCommand command)
+    public async Task<Response<RoundReadyDto>> Ready([FromBody] RoundReadyCommand command)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity.Name);
-        command.UserGuid = user.Guid;
         return await _mediator.Send(command);
     }
 

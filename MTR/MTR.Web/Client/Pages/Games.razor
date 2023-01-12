@@ -12,7 +12,7 @@
 
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateGame">Create game</MudButton>
 
-        <MudTable Items="@gameDto.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+        <MudTable Items="@games" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
             <HeaderContent>
                 <MudTh>Owner</MudTh>
                 <MudTh>Type</MudTh>
@@ -20,10 +20,10 @@
                 <MudTh>Join</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="Owner">@context.Players.First(p => p.Guid == context.Guid).Username</MudTd>
-                <MudTd DataLabel="Type">@context.TableType</MudTd>
-                <MudTd DataLabel="Players">@context.Players.Count() / @context.MaxPlayers</MudTd>
-                <MudTd DataLabel="Join"><MudButton Variant="Variant.Outlined" OnClick="@(() => JoinGame(context.Guid))">Join</MudButton></MudTd>
+                <MudTd DataLabel="Owner">@context.Owner</MudTd>
+                <MudTd DataLabel="Type">@context.Type</MudTd>
+                <MudTd DataLabel="Players">@context.PlayersInfo</MudTd>
+                <MudTd DataLabel="Join"><MudButton Variant="Variant.Outlined" OnClick="@(() => JoinGame(context.GameGuid))">Join</MudButton></MudTd>
             </RowTemplate>
             <NoRecordsContent>No games to display</NoRecordsContent>
         </MudTable>
@@ -32,7 +32,7 @@
 
 @code {
     private bool _loading;
-    private GameDto[] gameDto;
+    private GameListItemDto[] games;
 
     void CreateGame()
     {
@@ -46,29 +46,31 @@
         var response = await Http.PostAsJsonAsync("game/join", command);
         var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
 
-        if (result.Success)
+        if (result is not null && result.Success)
         {
             navigationManager.NavigateTo($"/games/{gameGuid}");
             Snackbar.Add("Success", Severity.Success);
         }
+
+        Snackbar.Add(result?.Message, Severity.Error);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        gameDto = new GameDto[] { };
+        games = new GameListItemDto[] { };
         _loading = true;
         var query = new GetGamesQuery(1, new() { "NotStarted" });
         var response = await Http.PostAsJsonAsync("game/getgames", query);
-        var result = await response.Content.ReadFromJsonAsync<ResponseMultiple<GameDto>>();
+        var result = await response.Content.ReadFromJsonAsync<ResponseMultiple<GameListItemDto>>();
         _loading = false;
 
-        if (result.Success)
+        if (result is not null && result.Success)
         {
-            gameDto = result.Model;
+            games = result.Model;
             Snackbar.Add("Success", Severity.Success);
         }
 
-        Snackbar.Add(result.Message, Severity.Error);
+        Snackbar.Add(result?.Message, Severity.Error);
 
         // else toast message
     }

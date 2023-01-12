@@ -1,3 +1,3 @@
 ﻿namespace MTR.DTO;
 
-public record EmptyDto(bool Success) : IDto;
+public record RoundReadyDto(bool IsReady) : IDto;

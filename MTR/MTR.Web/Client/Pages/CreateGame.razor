@@ -1,6 +1,9 @@
 ﻿@page "/games/create"
 @inherits LayoutComponentBase
 @inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
 <h3>Create Game</h3>
 
 <MudSelect T="string" Label="Please select table type" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter" ValueChanged="TableTypeChanged">
@@ -33,6 +36,13 @@
         var response = await Http.PostAsJsonAsync("game/create", command);
         var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
 
+        if (result is not null && result.Success)
+        {
+            NavigationManager.NavigateTo($"/games/{gameGuid}");
+            Snackbar.Add("Success", Severity.Success);
+        }
+
+        Snackbar.Add(result?.Message, Severity.Error);
 
     }
 }

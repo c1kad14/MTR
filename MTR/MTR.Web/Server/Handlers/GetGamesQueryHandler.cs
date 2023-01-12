@@ -14,7 +14,7 @@ using System.Collections.Generic;
 
 namespace MTR.Web.Shared.Handlers;
 
-public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMultiple<GameDto>>
+public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMultiple<GameListItemDto>>
 {
     private readonly IMapper _mapper;
     private readonly MTRContext _context;
@@ -25,10 +25,10 @@ public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMulti
         _context = context;
     }
 
-    public async Task<ResponseMultiple<GameDto>> Handle(GetGamesQuery request, CancellationToken cancellationToken)
+    public async Task<ResponseMultiple<GameListItemDto>> Handle(GetGamesQuery request, CancellationToken cancellationToken)
     {
-        var gameDtos = new List<GameDto>();
-        var pageSize = 10;
+        var gameDtos = new GameListItemDto[] { };
+        var pageSize = 100;
         var skip = pageSize * (request.Page - 1);
         var statuses = _mapper.Map<List<StatusType>>(request.Status);
 
@@ -40,15 +40,16 @@ public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMulti
                                            .Where(g => statuses.Contains(g.Status.OrderBy(s => s.Modified).Last().Status))
                                            .Skip(skip)
                                            .Take(pageSize)
+                                           .OrderByDescending(g => g.Created)
                                            .ToListAsync();
 
-            gameDtos = _mapper.Map<List<GameDto>>(games);
+            gameDtos = _mapper.Map<GameListItemDto[]>(games);
         }
         catch (Exception ex)
         {
-            return new ResponseMultiple<GameDto> { Message = ex.Message };
+            return new ResponseMultiple<GameListItemDto> { Message = ex.Message };
         }
 
-        return new ResponseMultiple<GameDto> { Success = true, Model = gameDtos.ToArray() };
+        return new ResponseMultiple<GameListItemDto> { Success = true, Model = gameDtos.ToArray() };
     }
 }

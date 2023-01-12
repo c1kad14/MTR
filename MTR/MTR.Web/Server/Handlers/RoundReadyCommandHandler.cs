@@ -10,7 +10,7 @@ using MTR.Web.Shared.Models;
 
 namespace MTR.Web.Server.Handlers;
 
-public class RoundReadyCommandHandler : IRequestHandler<RoundReadyCommand, Response<EmptyDto>>
+public class RoundReadyCommandHandler : IRequestHandler<RoundReadyCommand, Response<RoundReadyDto>>
 {
     private readonly MTRContext _context;
 
@@ -19,7 +19,7 @@ public class RoundReadyCommandHandler : IRequestHandler<RoundReadyCommand, Respo
         _context = context;
     }
 
-    public async Task<Response<EmptyDto>> Handle(RoundReadyCommand request, CancellationToken cancellationToken)
+    public async Task<Response<RoundReadyDto>> Handle(RoundReadyCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -29,23 +29,16 @@ public class RoundReadyCommandHandler : IRequestHandler<RoundReadyCommand, Respo
 
             if (round is null)
             {
-                return new Response<EmptyDto>() { Message = "Invalid round." };
-            }
-
-            var user = await _context.Users.Include(u => u.Details).SingleOrDefaultAsync(u => u.Guid == request.UserGuid);
-
-            if (user is null)
-            {
-                return new Response<EmptyDto> { Message = "Invalid user." };
+                return new Response<RoundReadyDto>() { Message = "Invalid round." };
             }
 
             var player = _context.Players
                 .Include(p => p.Removed)
-                .SingleOrDefault(p => p.MTRUserId == user.Id && p.GameId == round.GameId);
+                .SingleOrDefault(p => p.Guid == request.PlayerGuid && p.GameId == round.GameId && !p.Removed.Any());
 
             if (player is null)
             {
-                return new Response<EmptyDto> { Message = "Invalid player." };
+                return new Response<RoundReadyDto> { Message = "Invalid player." };
             }
 
             var roundReady = round.RoundReady
@@ -53,22 +46,25 @@ public class RoundReadyCommandHandler : IRequestHandler<RoundReadyCommand, Respo
                 .OrderByDescending(rr => rr.Modified)
                 .FirstOrDefault();
 
-            if (roundReady is null || !roundReady.Ready)
+            if (roundReady is null || roundReady.Ready != request.IsReady)
             {
                 _context.RoundReady.Add(new RoundReady
                 {
                     PlayerId = player.Id,
                     RoundId = round.Id,
-                    Ready = true
+                    Ready = request.IsReady
                 });
+
                 await _context.SaveChangesAsync();
+
+                return new Response<RoundReadyDto> { Success = true, Model = new(request.IsReady) };
             }
 
-            return new Response<EmptyDto> { Success = true, Model = new(true) };
+            return new Response<RoundReadyDto>();
         }
         catch (Exception ex)
         {
-            return new Response<EmptyDto> { Message = ex.Message };
+            return new Response<RoundReadyDto> { Message = ex.Message };
         }
     }
 }

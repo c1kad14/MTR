@@ -23,7 +23,7 @@ public class MTRProfile : Profile
 
         CreateMap<Player, PlayerDto>()
             .ForMember(d => d.Username, o => o.MapFrom(s => s.MTRUser.UserName))
-            .ForMember(d => d.IsReady, o => o.MapFrom(s => s.RoundReady.OrderByDescending(rr => rr.Modified).First().Ready))
+            .ForMember(d => d.IsReady, o => o.MapFrom(s => s.RoundReady.Any() ? s.RoundReady.OrderByDescending(rr => rr.Modified).First().Ready : false))
             .ForMember(d => d.Guid, o => o.MapFrom(s => s.Guid));
 
         CreateMap<SignUpUserCommand, MTRUser>()
@@ -49,6 +49,13 @@ public class MTRProfile : Profile
 
         CreateMap<Game, GameDto>()
             .ForMember(d => d.MaxPlayers, o => o.MapFrom(s => (int)s.TableType))
+            .ReverseMap();
+
+        CreateMap<Game, GameListItemDto>()
+            .ForMember(d => d.GameGuid, o => o.MapFrom(s => s.Guid))
+            .ForMember(d => d.Type, o => o.MapFrom(s => s.TableType))
+            .ForMember(d => d.PlayersInfo, o => o.MapFrom(s => $"{s.Players.Count(p => !p.Removed.Any())} / {(int)s.TableType}"))
+            .ForMember(d => d.Owner, o => o.MapFrom(s => s.Players.Single(p => p.Guid == s.Guid).MTRUser.UserName))
             .ReverseMap();
 
         CreateMap<(JoinGameCommand, Game, MTRUser), Player>()

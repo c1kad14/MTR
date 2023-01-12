@@ -8,6 +8,7 @@ using MTR.Web.Shared.Models;
 using MTR.Web.Shared.Queries;
 using MTR.DAL;
 using MTR.DTO;
+using System.Linq.Expressions;
 
 namespace MTR.Web.Shared.Handlers;
 
@@ -24,22 +25,31 @@ public class GetGameQueryHandler : IRequestHandler<GetGameQuery, Response<GameDt
 
     public async Task<Response<GameDto>> Handle(GetGameQuery request, CancellationToken cancellationToken)
     {
-        if (request.Guid == default)
+        try
         {
-            return new Response<GameDto> { Message = "Game id is invalid." };
+
+            if (request.Guid == default)
+            {
+                return new Response<GameDto> { Message = "Game id is invalid." };
+            }
+
+            var game = await _context.Games.Include(g => g.Players)
+                                           .ThenInclude(p => p.MTRUser)
+                                           .Include(g => g.Players)
+                                           .ThenInclude(p => p.RoundReady)
+                                           .SingleOrDefaultAsync(g => g.Guid == request.Guid);
+
+            if (game is null)
+            {
+                return new Response<GameDto> { Message = "Game not found." };
+            }
+
+            var gameDto = _mapper.Map<GameDto>(game);
+            return new Response<GameDto> { Success = true, Model = gameDto };
         }
-
-        var game = await _context.Games.Include(g => g.Players)
-                                       .ThenInclude(p => p.MTRUser)
-                                       .SingleOrDefaultAsync(g => g.Guid == request.Guid);
-
-        if (game is null)
+        catch (Exception ex)
         {
-            return new Response<GameDto> { Message = "Game not found." };
+            return new Response<GameDto> { Message = ex.Message };
         }
-
-        var gameDto = _mapper.Map<GameDto>(game);
-
-        return new Response<GameDto> { Success = true, Model = gameDto };
     }
 }
