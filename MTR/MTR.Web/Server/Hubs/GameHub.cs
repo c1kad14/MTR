@@ -15,6 +15,7 @@ namespace MTR.Web.Server.Hubs;
 
 public class GameHub : Hub
 {
+    private static Dictionary<string, string> _connections = new();
     private readonly IMediator _mediator;
 
     public GameHub(IMediator mediator)
@@ -40,6 +41,8 @@ public class GameHub : Hub
             return;
         }
 
+        _connections[Context.ConnectionId] = gameGuid;
+
         await Groups.AddToGroupAsync(Context.ConnectionId, gameGuid);
         await Clients.Caller.SendAsync("JoinGroupCallback", player.Guid);
         await Clients.OthersInGroup(gameGuid).SendAsync("PlayerJoined", player);
@@ -50,20 +53,21 @@ public class GameHub : Hub
     public async Task LeaveGroupAsync(string groupName)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+
+        _connections.Remove(Context.ConnectionId);
         //await Clients.Group(groupName).SendAsync("PlayerRemoved", playerGuid);
     }
 
     public override async Task OnConnectedAsync()
     {
-        string name = Context.User.Identity.Name;
+        _connections.Add(Context.ConnectionId, string.Empty);
 
         await base.OnConnectedAsync();
     }
 
-    public override Task OnDisconnectedAsync(Exception? exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        string name = Context.User.Identity.Name;
-
-        return base.OnDisconnectedAsync(exception);
+        await LeaveGroupAsync(_connections[Context.ConnectionId]);
+        await base.OnDisconnectedAsync(exception);
     }
 }

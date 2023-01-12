@@ -3,7 +3,7 @@
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
-@implements IDisposable
+@implements IAsyncDisposable
 
 <h3>GameLobby</h3>
 
@@ -92,11 +92,11 @@
         //Snackbar.Add(result.Message, Severity.Error);
     }
 
-    void IDisposable.Dispose()
+    public async ValueTask DisposeAsync()
     {
         if (hubConnection is not null)
         {
-            hubConnection.SendAsync("LeaveGroup", Guid);
+            await hubConnection.SendAsync("LeaveGroup", Guid);
         }
     }
 
