@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 using MTR.Domain;
 using MTR.DTO;
+using MTR.Web.Server.Hubs;
 using MTR.Web.Shared.Commands;
 using MTR.Web.Shared.Models;
 using MTR.Web.Shared.Queries;

@@ -1,0 +1,73 @@
+﻿@using MTR.Core.Abstractions
+@using MTR.Domain
+@inject IActionManager ActionManager
+
+<div>
+    <MudDropContainer T="DropItem" Items="_dropzoneItems" @ref="_container" ItemsSelector="@((item,dropzone) => item.Place == dropzone)"
+                      ItemDropped="ItemUpdated" Class="d-flex flex-column flex-grow-1">
+        <ChildContent>
+            <div class="d-flex flex-wrap justify-space-between board rounded-lg b">
+                @for (var i = 1; i <= 6; i++)
+                {
+                    var id = i.ToString();
+                    <MudDropZone T="DropItem" Identifier="@id" CanDrop="@((item) => CanDrop(item, id))" Class="border-1 flex-grow-1 d-flex flex-wrap board-container"></MudDropZone>
+                }
+            </div>
+
+            <MudDropZone T="DropItem" Identifier="Hand" CanDrop="@((item) => false)" Class="rounded-lg mud-alert-text-normal pa-4 mt-6 mx-4 flex-grow-1 d-flex flex-wrap hero-cards" />
+        </ChildContent>
+        <ItemRenderer>
+            <div class="board-card d-flex justify-center item mt-3">
+                <MudImage Width="70" Height="100" Src="@context.Path" />
+            </div>
+        </ItemRenderer>
+    </MudDropContainer>
+</div>
+
+@code {
+    private MudDropContainer<DropItem>? _container;
+
+    private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
+    {
+        dropItem.Item.Place = dropItem.DropzoneIdentifier;
+    }
+
+    public bool CanDrop(DropItem item, string place)
+    {
+        if (_container is not null)
+        {
+            return _container.Items.Count(i => i.Place == place) < 2; // TODO: pass correct data && ActionManager.CanToss(null, null, null, null);
+        }
+
+        return false;
+    }
+
+    private List<DropItem> _dropzoneItems = new()
+    {
+        new DropItem(){ Rank = Rank.SIX, Suit = Suit.CLUBS, Place = "Hand", Name = "6c" },
+        new DropItem(){ Rank = Rank.SIX, Suit = Suit.SPADES, Place = "Hand", Name = "6s" },
+        new DropItem(){ Rank = Rank.SEVEN, Suit = Suit.CLUBS, Place = "Hand", Name = "7c" },
+        new DropItem(){ Rank = Rank.EIGHT, Suit = Suit.SPADES, Place = "Hand", Name = "8s" },
+        new DropItem(){ Rank = Rank.EIGHT,Suit = Suit.HEARTS, Place = "Hand", Name = "8h" },
+        new DropItem(){ Rank = Rank.TEN, Suit = Suit.DIAMONDS, Place = "Hand", Name = "Td" },
+        new DropItem(){ Rank = Rank.ACE, Suit = Suit.SPADES, Place = "Hand", Name = "As" },
+    };
+
+    private void RefreshContainer()
+    {
+        //update the binding to the container
+        StateHasChanged();
+
+        //the container refreshes the internal state
+        _container.Refresh();
+    }
+
+    public class DropItem
+    {
+        public string Name { get; set; }
+        public Rank Rank { get; set; }
+        public Suit Suit { get; set; }
+        public string Place { get; set; }
+        public string Path => $"cards/{Name}.png";
+    }
+}

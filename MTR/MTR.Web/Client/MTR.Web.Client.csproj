@@ -19,6 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\MTR.Core\MTR.Core.csproj" />
 		<ProjectReference Include="..\Shared\MTR.Web.Shared.csproj" />
 	</ItemGroup>
 
