@@ -64,26 +64,47 @@ a, .btn-link {
     }
 
 .board {
-    min-height: 180px;
+    width: 100%;
+    height: 12vh;
+}
+
+.table-container {
+    width: 100%;
+    height: 80vh;
+    padding: 25px 10px 25px 10px;
+    border: 1px red solid;
+    background: radial-gradient(black 15%, transparent 16%) 0 0, radial-gradient(black 15%, transparent 16%) 8px 8px, radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px, radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+    background-color: #282828;
+    background-size: 16px 16px;
+}
+
+
+.player-cards {
+    border: 1px blue solid;
+    height: 12vh;
 }
 
 .board-container .mud-drop-item:first-of-type {
-    margin-left: 22px !important;
+    margin-left: 1vw !important;
 }
 
 .board-container .mud-drop-item:nth-of-type(n) {
-    margin-left: -35px;
+    margin-left: -1.5vw;
 }
 
 .hero-cards .mud-drop-item:first-of-type {
-    margin-left: 5px !important;
+    margin-left: .5vw !important;
 }
 
 .hero-cards .mud-drop-item:nth-of-type(n) {
-    margin-left: -35px;
+    margin-left: -1.5vw;
 }
 
 .board-container {
-    height: 130px;
-    width: 120px;
+    width: 6vw;
+}
+
+.board-card {
+    background-size: 70px 100px;
+    width: 3vw;
 }

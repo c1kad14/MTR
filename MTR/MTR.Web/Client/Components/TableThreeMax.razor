@@ -2,30 +2,70 @@
 @using MTR.Domain
 @inject IActionManager ActionManager
 
-<div>
+<div class="table-container" @ondragover:preventDefault @ondrop:preventDefault>
     <MudDropContainer T="DropItem" Items="_dropzoneItems" @ref="_container" ItemsSelector="@((item,dropzone) => item.Place == dropzone)"
-                      ItemDropped="ItemUpdated" Class="d-flex flex-column flex-grow-1">
+                      ItemDropped="ItemUpdated" Class="d-flex flex-column flex-grow-1" @ondragover:preventDefault @ondrop:preventDefault>
         <ChildContent>
-            <div class="d-flex flex-wrap justify-space-between board rounded-lg b">
-                @for (var i = 1; i <= 6; i++)
-                {
-                    var id = i.ToString();
-                    <MudDropZone T="DropItem" Identifier="@id" CanDrop="@((item) => CanDrop(item, id))" Class="border-1 flex-grow-1 d-flex flex-wrap board-container"></MudDropZone>
-                }
-            </div>
+            <MudGrid Justify="Justify.SpaceEvenly">
+                <MudItem xs="5">
+                    <div Class="d-flex flex-column align-center justify-center mud-width-full py-8 player-cards">
+                        <MudText Typo="Typo.h6" Align="Align.Center">Player 1</MudText>
+                    </div>
+                </MudItem>
 
-            <MudDropZone T="DropItem" Identifier="Hand" CanDrop="@((item) => false)" Class="rounded-lg mud-alert-text-normal pa-4 mt-6 mx-4 flex-grow-1 d-flex flex-wrap hero-cards" />
+                <MudItem xs="2">
+                    <div Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+                        <MudText Typo="Typo.h6" Align="Align.Center">DECK</MudText>
+                    </div>
+                </MudItem>
+
+                <MudItem xs="5">
+                    <div Class="d-flex flex-column align-center justify-center mud-width-full py-8 player-cards">
+                        <MudText Typo="Typo.h6" Align="Align.Center">Player 2</MudText>
+                    </div>
+                </MudItem>
+
+                <MudItem xs="10">
+                    <div Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+                        <MudText Typo="Typo.h6" Align="Align.Center">BOARD</MudText>
+                        <div class="d-flex flex-wrap justify-space-between board rounded-lg b border-1 border-success">
+                            @for (var i = 1; i <= 6; i++)
+                            {
+                                var id = i.ToString();
+                                <MudDropZone T="DropItem" Identifier="@id" CanDrop="@((item) => CanDrop(item, id))" CanDropClass="mud-border-success" NoDropClass="mud-border-error" Class="border-1 flex-grow-1 d-flex flex-wrap board-container"></MudDropZone>
+                            }
+                        </div>
+                    </div>
+                </MudItem>
+
+                <MudItem xs="8" hidden>
+                    <MudPaper Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+                        <MudText Typo="Typo.h6" Align="Align.Center">MUCK</MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="8">
+                    <div Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+                        <MudDropZone T="DropItem" Identifier="Hand" CanDrop="@((item) => false)" Class="rounded-lg mud-alert-text-normal pa-4 mt-6 mx-4 flex-grow-1 d-flex flex-wrap player-cards hero-cards" />
+                    </div>
+                </MudItem>
+            </MudGrid>
         </ChildContent>
         <ItemRenderer>
-            <div class="board-card d-flex justify-center item mt-3">
-                <MudImage Width="70" Height="100" Src="@context.Path" />
-            </div>
+            <img class="board-card" src="@context.Path" @ondragover:preventDefault @ondrop:preventDefault />
         </ItemRenderer>
     </MudDropContainer>
+
 </div>
 
 @code {
     private MudDropContainer<DropItem>? _container;
+
+    private List<CardDto> _cards = new()
+    {
+        new(){}
+
+    };
 
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {
