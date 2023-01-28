@@ -8,21 +8,15 @@
         <ChildContent>
             <MudGrid Justify="Justify.SpaceEvenly">
                 <MudItem xs="5">
-                    <div Class="d-flex flex-column align-center justify-center mud-width-full py-8 player-cards">
-                        <MudText Typo="Typo.h6" Align="Align.Center">Player 1</MudText>
-                    </div>
+                    <OtherPlayerCards Count="5" />
                 </MudItem>
 
                 <MudItem xs="2">
-                    <div Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-                        <MudText Typo="Typo.h6" Align="Align.Center">DECK</MudText>
-                    </div>
+                    <DeckCards Count="7" />
                 </MudItem>
 
                 <MudItem xs="5">
-                    <div Class="d-flex flex-column align-center justify-center mud-width-full py-8 player-cards">
-                        <MudText Typo="Typo.h6" Align="Align.Center">Player 2</MudText>
-                    </div>
+                    <OtherPlayerCards Count="7" />
                 </MudItem>
 
                 <MudItem xs="10">
@@ -46,7 +40,7 @@
 
                 <MudItem xs="8">
                     <div Class="d-flex flex-column align-center justify-center mud-width-full py-8">
-                        <MudDropZone T="DropItem" Identifier="Hand" CanDrop="@((item) => false)" Class="rounded-lg mud-alert-text-normal pa-4 mt-6 mx-4 flex-grow-1 d-flex flex-wrap player-cards hero-cards" />
+                        <MudDropZone T="DropItem" Identifier="Hand" CanDrop="@((item) => false)" Class="rounded-lg mud-alert-text-normal  flex-grow-1 d-flex flex-wrap player-cards hero-cards" />
                     </div>
                 </MudItem>
             </MudGrid>
@@ -60,12 +54,6 @@
 
 @code {
     private MudDropContainer<DropItem>? _container;
-
-    private List<CardDto> _cards = new()
-    {
-        new(){}
-
-    };
 
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {

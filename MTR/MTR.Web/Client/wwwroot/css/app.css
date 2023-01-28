@@ -78,33 +78,55 @@ a, .btn-link {
     background-size: 16px 16px;
 }
 
-
-.player-cards {
-    border: 1px blue solid;
-    height: 12vh;
+.other-player-card {
+    width: 5vw;
 }
 
-.board-container .mud-drop-item:first-of-type {
-    margin-left: 1vw !important;
+.deck-card {
+    width: 3vw;
 }
 
-.board-container .mud-drop-item:nth-of-type(n) {
-    margin-left: -1.5vw;
+.player-cards .deck-card:first-of-type {
+    margin-left: .2vw !important;
 }
 
-.hero-cards .mud-drop-item:first-of-type {
+.player-cards .deck-card:nth-of-type(n) {
+    margin-left: -2.9vw;
+}
+
+.player-cards .other-player-card:first-of-type {
     margin-left: .5vw !important;
 }
 
-.hero-cards .mud-drop-item:nth-of-type(n) {
-    margin-left: -1.5vw;
+.player-cards .other-player-card:nth-of-type(n) {
+    margin-left: -3.5vw;
+}
+
+.player-cards {
+    border: 1px blue solid;
 }
 
 .board-container {
     width: 6vw;
 }
 
+    .board-container .mud-drop-item:first-of-type {
+        margin-left: 1vw !important;
+    }
+
+    .board-container .mud-drop-item:nth-of-type(n) {
+        margin-left: -2.5vw;
+    }
+
+.hero-cards .mud-drop-item:first-of-type {
+    margin-left: .2vw !important;
+}
+
+.hero-cards .mud-drop-item:nth-of-type(n) {
+    margin-left: -2.5vw;
+}
+
+
 .board-card {
-    background-size: 70px 100px;
-    width: 3vw;
+    width: 5vw;
 }

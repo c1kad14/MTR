@@ -1,0 +1,17 @@
+﻿
+<div class="rounded-lg mud-alert-text-normal pa-4 mt-6 mx-4 flex-grow-1 d-flex flex-wrap player-cards">
+    @foreach (var i in Enumerable.Range(0, Count))
+    {
+        <img class="deck-card" src="/cards/card_black.png"/>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public byte Count { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+}
