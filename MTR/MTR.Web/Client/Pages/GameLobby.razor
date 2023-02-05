@@ -1,4 +1,4 @@
-﻿@page "/games/{guid}"
+﻿@page "/games/{GameGuid}"
 @inherits LayoutComponentBase
 @inject HttpClient Http
 @inject ISnackbar Snackbar
@@ -8,6 +8,15 @@
 <h3>GameLobby</h3>
 
 <MudChip Color="Color.Secondary">@game.TableType</MudChip>
+
+@if (IsMember)
+{
+    <MudButton Variant="Variant.Outlined" OnClick="@(LeaveGame)">Leave</MudButton>
+}
+else
+{
+    <MudButton Variant="Variant.Outlined" OnClick="@(JoinGame)">Join</MudButton>
+}
 
 <MudMainContent>
     <MudContainer MaxWidth="MaxWidth.Medium">
@@ -24,25 +33,30 @@
             </RowTemplate>
         </MudTable>
 
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReadyClick">@(!isReady ? "Ready" : "Not ready")</MudButton>
-        </MudContainer>
-    </MudMainContent>
+        @if (IsMember)
+        {
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReadyClick">@(!isReady ? "Ready" : "Not ready")</MudButton>
+        }
 
-    @code {
+    </MudContainer>
+</MudMainContent>
+
+@code {
     [Parameter]
-    public string Guid { get; set; } = string.Empty;
+    public string GameGuid { get; set; } = string.Empty;
     private Guid playerGuid;
     private bool isReady;
     private bool loading;
     private GameDto game = new();
     private List<PlayerDto> players = new();
     private HubConnection? hubConnection;
+    private bool IsMember => players.Any(p => p.Guid == playerGuid);
 
     public async Task ReadyClick()
     {
         var command = new RoundReadyCommand
             {
-                RoundGuid = new Guid(Guid),
+                RoundGuid = new Guid(GameGuid), // first round guid is game guid
                 PlayerGuid = playerGuid,
                 IsReady = !isReady
             };
@@ -56,8 +70,38 @@
 
             if (hubConnection is not null)
             {
-                await hubConnection.SendAsync("RoundReady", Guid, playerGuid, isReady);
+                await hubConnection.SendAsync("RoundReady", GameGuid, playerGuid, isReady);
             }
+        }
+
+        Snackbar.Add(result?.Message, Severity.Error);
+    }
+
+    private async Task JoinGame()
+    {
+        var gameGuid = new Guid(GameGuid);
+        var command = new JoinGameCommand { Guid = gameGuid, PlayerGuid = playerGuid };
+        var response = await Http.PostAsJsonAsync("game/join", command);
+        var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
+
+        if (result is not null && result.Success)
+        {
+            await hubConnection!.SendAsync("JoinGame", gameGuid);
+        }
+
+        Snackbar.Add(result?.Message, Severity.Error);
+    }
+
+    private async Task LeaveGame()
+    {
+        var gameGuid = new Guid(GameGuid);
+        var command = new LeaveGameCommand { Guid = new Guid(GameGuid), PlayerGuid = playerGuid };
+        var response = await Http.PostAsJsonAsync("game/leave", command);
+        var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
+
+        if (result is not null && result.Success)
+        {
+            await hubConnection!.SendAsync("LeaveGame", gameGuid, playerGuid);
         }
 
         Snackbar.Add(result?.Message, Severity.Error);
@@ -69,13 +113,13 @@
 
         loading = true;
 
-        var query = new GetGameQuery(new Guid(Guid));
+        var query = new GetGameQuery(new Guid(GameGuid));
         var response = await Http.PostAsJsonAsync("game/getgame", query);
         var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
 
         if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("JoinGroup", Guid);
+            await hubConnection.SendAsync("JoinGroup", GameGuid);
         }
 
         loading = false;
@@ -89,6 +133,11 @@
             }
         }
 
+        if (playerGuid == default)
+        {
+            playerGuid = Guid.NewGuid();
+        }
+
         //Snackbar.Add(result.Message, Severity.Error);
     }
 
@@ -96,7 +145,7 @@
     {
         if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("LeaveGroup", Guid);
+            await hubConnection.SendAsync("LeaveGroup", GameGuid);
         }
     }
 
@@ -114,7 +163,7 @@
             StateHasChanged();
         });
 
-        hubConnection.On<Guid>("JoinGroupCallback", (playerGuid) =>
+        hubConnection.On<Guid>("JoinGameCallback", (playerGuid) =>
         {
             this.playerGuid = playerGuid;
 
@@ -129,8 +178,27 @@
             {
                 players.Add(player);
 
+                if (this.playerGuid == player.Guid)
+                {
+                    isReady = players.SingleOrDefault(p => p.Guid == playerGuid)?.IsReady ?? false;
+                }
+
                 StateHasChanged();
             }
+        });
+
+        hubConnection.On<Guid>("PlayerLeft", (playerGuid) =>
+        {
+            players = players.Where(p => p.Guid != playerGuid).ToList();
+
+            if (this.playerGuid == playerGuid)
+            {
+                this.playerGuid = Guid.NewGuid();
+
+                isReady = false;
+            }
+
+            StateHasChanged();
         });
 
         await hubConnection.StartAsync();

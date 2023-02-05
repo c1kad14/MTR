@@ -23,7 +23,7 @@
                 <MudTd DataLabel="Owner">@context.Owner</MudTd>
                 <MudTd DataLabel="Type">@context.Type</MudTd>
                 <MudTd DataLabel="Players">@context.PlayersInfo</MudTd>
-                <MudTd DataLabel="Join"><MudButton Variant="Variant.Outlined" OnClick="@(() => JoinGame(context.GameGuid))">Join</MudButton></MudTd>
+                <MudTd DataLabel="Open"><MudButton Variant="Variant.Outlined" OnClick="@(() => ShowLobby(context.GameGuid))">Open</MudButton></MudTd>
             </RowTemplate>
             <NoRecordsContent>No games to display</NoRecordsContent>
         </MudTable>
@@ -39,20 +39,9 @@
         navigationManager.NavigateTo($"/games/create");
     }
 
-    private async Task JoinGame(Guid gameGuid)
+    private void ShowLobby(Guid gameGuid)
     {
-        var playerGuid = Guid.NewGuid();
-        var command = new JoinGameCommand { Guid = gameGuid, PlayerGuid = playerGuid };
-        var response = await Http.PostAsJsonAsync("game/join", command);
-        var result = await response.Content.ReadFromJsonAsync<Response<GameDto>>();
-
-        if (result is not null && result.Success)
-        {
-            navigationManager.NavigateTo($"/games/{gameGuid}");
-            Snackbar.Add("Success", Severity.Success);
-        }
-
-        Snackbar.Add(result?.Message, Severity.Error);
+        navigationManager.NavigateTo($"/games/{gameGuid}");
     }
 
     protected override async Task OnInitializedAsync()

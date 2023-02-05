@@ -27,7 +27,6 @@ public class GetGameQueryHandler : IRequestHandler<GetGameQuery, Response<GameDt
     {
         try
         {
-
             if (request.Guid == default)
             {
                 return new Response<GameDto> { Message = "Game id is invalid." };
@@ -37,12 +36,16 @@ public class GetGameQueryHandler : IRequestHandler<GetGameQuery, Response<GameDt
                                            .ThenInclude(p => p.MTRUser)
                                            .Include(g => g.Players)
                                            .ThenInclude(p => p.RoundReady)
+                                           .Include(g => g.Players)
+                                           .ThenInclude(p => p.Removed)
                                            .SingleOrDefaultAsync(g => g.Guid == request.Guid);
 
             if (game is null)
             {
                 return new Response<GameDto> { Message = "Game not found." };
             }
+
+            game.Players = game.Players.Where(p => !p.Removed.Any()).ToList();
 
             var gameDto = _mapper.Map<GameDto>(game);
             return new Response<GameDto> { Success = true, Model = gameDto };

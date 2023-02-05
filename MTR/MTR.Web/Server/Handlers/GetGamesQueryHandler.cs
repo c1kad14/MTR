@@ -36,6 +36,8 @@ public class GetGamesQueryHandler : IRequestHandler<GetGamesQuery, ResponseMulti
         {
             var games = await _context.Games.Include(g => g.Players)
                                            .ThenInclude(p => p.MTRUser)
+                                           .Include(g => g.Players)
+                                           .ThenInclude(p => p.Removed)
                                            .Include(g => g.Status)
                                            .Where(g => statuses.Contains(g.Status.OrderBy(s => s.Modified).Last().Status))
                                            .Skip(skip)

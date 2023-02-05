@@ -32,20 +32,38 @@ public class GameHub : Hub
 
     [Authorize]
     [HubMethodName("JoinGroup")]
-    public async Task AddGroupAsync(string gameGuid)
+    public async Task AddToGroupAsync(string gameGuid)
     {
         var player = await _mediator.Send(new GetPlayerQuery { GameGuid = new Guid(gameGuid), Username = Context.User.Identity.Name });
 
-        if (player is null)
+        if (player is not null)
         {
-            return;
+            await Clients.Caller.SendAsync("JoinGameCallback", player.Guid);
         }
 
         _connections[Context.ConnectionId] = gameGuid;
-
         await Groups.AddToGroupAsync(Context.ConnectionId, gameGuid);
-        await Clients.Caller.SendAsync("JoinGroupCallback", player.Guid);
-        await Clients.OthersInGroup(gameGuid).SendAsync("PlayerJoined", player);
+    }
+
+    [Authorize]
+    [HubMethodName("JoinGame")]
+    public async Task AddToGameAsync(string gameGuid)
+    {
+        var query = new GetPlayerQuery { GameGuid = new Guid(gameGuid), Username = Context.User.Identity.Name };
+        var player = await _mediator.Send(query);
+
+        if (player is not null)
+        {
+            //await Clients.Caller.SendAsync("JoinGameCallback", player.Guid);
+            await Clients.Group(gameGuid).SendAsync("PlayerJoined", player);
+        }
+    }
+
+    [Authorize]
+    [HubMethodName("LeaveGame")]
+    public async Task LeaveGameAsync(string gameGuid, string playerGuid)
+    {
+        await Clients.Group(gameGuid).SendAsync("PlayerLeft", playerGuid);
     }
 
     [Authorize]

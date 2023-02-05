@@ -53,6 +53,15 @@ public class GameController : ControllerBase
     {
         var user = await _userManager.FindByNameAsync(User.Identity.Name);
         command.UserGuid = user.Guid;
+
+        return await _mediator.Send(command);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [Route("Leave")]
+    public async Task<Response<GameDto>> LeaveGame([FromBody] LeaveGameCommand command)
+    {
         return await _mediator.Send(command);
     }
 
