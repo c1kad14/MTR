@@ -9,13 +9,16 @@
 
 <MudChip Color="Color.Secondary">@game.TableType</MudChip>
 
-@if (IsMember)
+@if (!IsOwner)
 {
-    <MudButton Variant="Variant.Outlined" OnClick="@(LeaveGame)">Leave</MudButton>
-}
-else
-{
-    <MudButton Variant="Variant.Outlined" OnClick="@(JoinGame)">Join</MudButton>
+    @if (IsMember)
+    {
+        <MudButton Variant="Variant.Outlined" OnClick="@(LeaveGame)">Leave</MudButton>
+    }
+    else
+    {
+        <MudButton Variant="Variant.Outlined" OnClick="@(JoinGame)">Join</MudButton>
+    }
 }
 
 <MudMainContent>
@@ -38,12 +41,17 @@ else
             <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReadyClick">@(!isReady ? "Ready" : "Not ready")</MudButton>
         }
 
+        @if (IsOwner && players.All(p => p.IsReady) && players.Count == game.MaxPlayers)
+        {
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReadyClick">Start</MudButton>
+        }
     </MudContainer>
 </MudMainContent>
 
 @code {
     [Parameter]
     public string GameGuid { get; set; } = string.Empty;
+    private Guid gameGuid => new Guid(GameGuid);
     private Guid playerGuid;
     private bool isReady;
     private bool loading;
@@ -51,6 +59,7 @@ else
     private List<PlayerDto> players = new();
     private HubConnection? hubConnection;
     private bool IsMember => players.Any(p => p.Guid == playerGuid);
+    private bool IsOwner => playerGuid == gameGuid;
 
     public async Task ReadyClick()
     {
@@ -138,7 +147,7 @@ else
             playerGuid = Guid.NewGuid();
         }
 
-        //Snackbar.Add(result.Message, Severity.Error);
+        Snackbar.Add(result.Message, Severity.Error);
     }
 
     public async ValueTask DisposeAsync()
@@ -149,11 +158,29 @@ else
         }
     }
 
+    private async Task OnReconnecting(Exception? ex)
+    {
+        await Task.Delay(100);
+        Snackbar.Add("Connection lost. Trying to reconnect.", Severity.Warning);
+    }
+
+    private async Task OnReconnected(string? message)
+    {
+        Snackbar.Add($"Reconnected: {message}", Severity.Success);
+
+        await hubConnection!.SendAsync("JoinGroup", GameGuid);
+    }
+
     private async Task ConnectAsync()
     {
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/gamehub"))
+            .WithAutomaticReconnect()
             .Build();
+
+        //hubConnection.Closed += OnClosed;
+        hubConnection.Reconnecting += OnReconnecting;
+        hubConnection.Reconnected += OnReconnected;
 
         hubConnection.On<Guid, bool>("PlayerReadyChanged", (playerGuid, isReady) =>
         {
@@ -207,5 +234,19 @@ else
     private Color GetReady(bool isReady)
     {
         return isReady ? Color.Success : Color.Error;
+    }
+
+    // for force reconnect before any call
+    private async void CheckHubConnection()
+    {
+        if (hubConnection!.State != HubConnectionState.Connected)
+        {
+            await hubConnection.StartAsync();
+        }
+    }
+
+    private async Task OnClosed(Exception? ex)
+    {
+        await hubConnection?.StartAsync();
     }
 }
