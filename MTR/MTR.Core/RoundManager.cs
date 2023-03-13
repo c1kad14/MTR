@@ -58,7 +58,14 @@ public class RoundManager : IRoundManager
 
         if (previousRoundResult == default)
         {
-            return new RoundResult { Player = player, PlayerId = player.Id, Score = playerCount, Round = round, RoundId = round.Id };
+            return new RoundResult
+            {
+                Player = player,
+                PlayerId = player.Id,
+                Score = playerCount,
+                Round = round,
+                RoundId = round.Id
+            };
         }
 
         var score = previousRoundResult.Score - 1 + penalty;

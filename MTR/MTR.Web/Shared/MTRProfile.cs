@@ -63,5 +63,12 @@ public class MTRProfile : Profile
             .ForMember(d => d.Game, o => o.MapFrom(s => s.Item2))
             .ForMember(d => d.GameId, o => o.MapFrom(s => s.Item2.Id))
             .ForMember(d => d.MTRUserId, o => o.MapFrom(s => s.Item3.Id));
+
+        CreateMap<(Player, SitPlayerCommand), PlayerPosition>()
+            .ForMember(d => d.PlayerId, o => o.MapFrom(s => s.Item1.Id))
+            .ForMember(d => d.Guid, o => o.MapFrom(s => s.Item2.Guid))
+            .ForMember(d => d.Position, o => o.MapFrom(s => s.Item2.Position));
+
+        CreateMap<PlayerPosition, SitPlayerDto>();
     }
 }

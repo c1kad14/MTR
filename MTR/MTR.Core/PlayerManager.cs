@@ -25,5 +25,4 @@ public class PlayerManager : IPlayerManager
         return playersOrderedByPosition.FirstOrDefault(p => p.Position.Any(p => p.Position > previousPosition))
             ?? playersOrderedByPosition.First();
     }
-
 }

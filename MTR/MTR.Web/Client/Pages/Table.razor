@@ -5,5 +5,15 @@
 
 <TableThreeMax />
 @code {
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+
+
+
+        _loading = false;
+    }
 
 }
